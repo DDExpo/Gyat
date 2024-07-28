@@ -1,6 +1,9 @@
 import argparse
 import sys
+import os
+from pathlib import Path
 
+from utils import repo_is_gyat
 from abstr_command import (
     cmd_add, cmd_cat_file, cmd_check_ignore, cmd_checkout, cmd_commit,
     cmd_commit_tree, cmd_hash_object, cmd_init, cmd_log, cmd_ls_files,
@@ -10,6 +13,11 @@ from abstr_command import (
 
 
 def main(argv: str = sys.argv[1:]):
+
+    if not repo_is_gyat(Path(os.getcwd())):
+        print("Current directory not a gyat dir!")
+        return 1
+
     arg_parser = argparse.ArgumentParser()
     argsubparsers = arg_parser.add_subparsers(title="Commands", dest="command")
     argsubparsers.required = True
@@ -25,7 +33,8 @@ def main(argv: str = sys.argv[1:]):
     argsp_log.add_argument(
         "commit", default="HEAD", nargs="?", help="Commit to start at.")
     argsp_hash = argsubparsers.add_parser(
-        "hash-object", help="Initialize a new, empty repository.")
+        "hash-object",
+        help="Hash object with sha1 and optionaly write object to disk.")
     argsp_hash.add_argument(
         "-t", dest="type", choices=["blob", "commit", "tag", "tree"],
         default="blob", help="Create object.")
@@ -35,7 +44,7 @@ def main(argv: str = sys.argv[1:]):
         "path", help="Where to create the object."
     )
     argsp_cat = argsubparsers.add_parser(
-        "cat-file", help="Initialize a new, empty repository.")
+        "cat-file", help="view gyat objects")
     argsp_cat.add_argument("sha", help="Objets hash.")
 
     args = arg_parser.parse_args(argv)
@@ -61,4 +70,7 @@ def main(argv: str = sys.argv[1:]):
 
 
 if __name__ == '__main__':
-    main()
+    while True:
+        exit_code = main()
+        if not exit_code:
+            break

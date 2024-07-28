@@ -1,16 +1,9 @@
-import os
-import zlib
 from hashlib import sha1
 from pathlib import Path
 
-from const import BASE_DIR, GYAT_OBJECTS
-
-
-def create_git_object(sha: str, data):
-    os.makedirs(BASE_DIR / GYAT_OBJECTS / f"{sha[:2]}", exist_ok=True)
-
-    with open(BASE_DIR / GYAT_OBJECTS / f"{sha[:2]}/{sha[2:]}", "wb") as f:
-        f.write(zlib.compress(data))
+from gyat_exceptions import IsNotCommitError
+from utils_utils import (
+    create_git_object, deserialize_gyat_object, find_repo_gyat)
 
 
 def create_blob(path_file: Path, create_f: bool = False) -> str:
@@ -19,27 +12,33 @@ def create_blob(path_file: Path, create_f: bool = False) -> str:
     sha = sha1(header+data).hexdigest()
 
     if create_f:
-        create_git_object(sha=sha, data=header+data)
+        create_git_object(
+            parent_repo=find_repo_gyat(), sha=sha, data=header+data)
 
     return sha
-
-
-def parse_commit_to_graphiz(sha: str):
-    pass
 
 
 def create_tag(path_file: Path, create_f: bool = False) -> str:
     data = open(path_file, "rb").read()
-    header = f"blob {len(data)}\0".encode("utf-8")
+    header = f"tag {len(data)}\0".encode("utf-8")
     sha = sha1(header+data).hexdigest()
 
     if create_f:
-        create_git_object(sha=sha, data=header+data)
+        create_git_object(
+            parent_repo=find_repo_gyat(), sha=sha, data=header+data)
 
     return sha
 
 
-def repo_is_git(cur_path: str = ".", required: bool = False) -> bool:
+def is_gyat_object(object_sha: str, gyat_obj_type: str):
+
+    header = deserialize_gyat_object(object_sha)[0]
+    object_type = header.decode('utf-8').strip().split()[0]
+    if not object_type == gyat_obj_type:
+        raise IsNotCommitError(object_sha)
+
+
+def repo_is_gyat(cur_path: str = ".", required: bool = False) -> bool:
     abs_path = Path.absolute(cur_path)
 
     while abs_path:
