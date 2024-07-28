@@ -1,0 +1,6 @@
+venv
+__pycache__
+.gyat
+main.build
+main.dist
+main.onefile-build
