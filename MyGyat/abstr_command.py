@@ -1,9 +1,9 @@
+import os
 from pathlib import Path
 
 from gyat_exceptions import IsNotCommitError, IsNotTreeError
 from const import GYAT_OBJECTS
-from utils import is_gyat_object
-from utils_utils import find_repo_gyat
+from utils import is_gyat_object, find_repo_gyat
 
 
 from commands import (
@@ -17,42 +17,73 @@ def cmd_add(args) -> None:
 
 
 def cmd_ls_tree(args) -> None:
-    gyat_ls_tree(args)
 
-
-def cmd_commit_tree(args) -> None:
-
-    parent_repo = find_repo_gyat()
     sha_tree = args.sha
-
+    base_dir = find_repo_gyat(Path(os.getcwd()))
     try:
-        if not (parent_repo / "objects" /
+        if not (base_dir / GYAT_OBJECTS /
                 (sha_tree[:2] + "/" + sha_tree[2:])).exists():
             raise FileNotFoundError
-        is_gyat_object(sha_tree, "tree")
+        if not is_gyat_object(base_dir, sha_tree, "tree"):
+            raise IsNotTreeError(sha_tree)
 
     except PermissionError as e:
         print(
             "Permission to object: " +
-            (parent_repo / 'objects' / (sha_tree[:2] + sha_tree[2:])) +
+            (base_dir / 'objects' / (sha_tree[:2] + sha_tree[2:])) +
             f"Denied!\nerror: {e}")
     except FileNotFoundError as e:
         print(f"sha key invalid or object is not exist\nerror: {e}")
     except IsNotTreeError as e:
         print(f"error: {e}")
-    gyat_commit_tree(parent_repo=parent_repo, sha_tree=sha_tree)
+
+    gyat_ls_tree(base_dir, args, sha_tree)
+
+
+def cmd_commit_tree(args) -> None:
+
+    sha_tree = args.sha
+    base_dir = find_repo_gyat(Path(os.getcwd()))
+    parent, message = args.p, args.m
+    try:
+        if not (base_dir / GYAT_OBJECTS /
+                (sha_tree[:2] + "/" + sha_tree[2:])).exists():
+            raise FileNotFoundError
+        if not is_gyat_object(base_dir, sha_tree, "tree"):
+            raise IsNotTreeError(sha_tree)
+
+    except PermissionError as e:
+        print(
+            "Permission to object: " +
+            (base_dir / 'objects' / (sha_tree[:2] + sha_tree[2:])) +
+            f"Denied!\nerror: {e}")
+    except FileNotFoundError as e:
+        print(f"sha key invalid or object is not exist\nerror: {e}")
+    except IsNotTreeError as e:
+        print(f"error: {e}")
+    gyat_commit_tree(
+        parent_repo=base_dir, sha_tree=sha_tree,
+        is_parent=parent, is_message=message)
 
 
 def cmd_write_tree(args) -> None:
-    # Implement the 'write-tree' functionality
-    pass
+    directory = Path(args.path)
+    if not directory.exists():
+        print(f"Path to {directory} is not exists")
+        return
+    elif not directory.is_dir():
+        print("Directory should be directory and not a file")
+        return
+    gyat_write_tree(directory)
 
 
 def cmd_cat_file(args) -> None:
 
-    object_sha = args.sha
+    base_dir = find_repo_gyat(Path(os.getcwd()))
+
     try:
-        gyat_cat_file(find_repo_gyat(), object_sha)
+        object_sha = args.sha
+        gyat_cat_file(base_dir, object_sha)
     except PermissionError:
         print("Permission to object: "
               f'{GYAT_OBJECTS} + {object_sha[:2] + object_sha[2:]} Denied!')
@@ -76,15 +107,20 @@ def cmd_commit(args) -> None:
 
 
 def cmd_hash_object(args) -> None:
-    path_file = Path(args.path)
+    path = Path(args.path)
     type_object = args.t
 
-    if not path_file.exists():
-        print(f"Path: {path_file} isnt exist!")
+    if not path.exists():
+        print(f"Path: {path} isnt exist!")
+        return
+    elif type_object == "tree" and not Path.is_dir():
+        print(f"Path: {path} isnt directory!")
+        return
+    elif type_object in ("commit", "tag", "blob") and not path.is_file():
+        print("Path should be to a file!")
         return
 
-    gyat_hash_object(path_file=path_file, mkfile=args.w,
-                     object_type=type_object)
+    gyat_hash_object(path=path, mkfile=args.w, object_type=type_object)
 
 
 def cmd_init(args) -> None:
@@ -105,11 +141,15 @@ def cmd_init(args) -> None:
 def cmd_log(args) -> None:
 
     commit_sha = args.commit
+    base_dir = find_repo_gyat(Path(os.getcwd()))
+
     try:
-        is_gyat_object(commit_sha, "commit")
+        if not is_gyat_object(base_dir, commit_sha, "commit"):
+            raise IsNotCommitError(commit_sha)
     except IsNotCommitError as e:
         print(f"error: {e}")
-    gyat_log(find_repo_gyat(), args.commit)
+
+    gyat_log(base_dir, commit_sha=commit_sha)
 
 
 def cmd_ls_files(args) -> None:

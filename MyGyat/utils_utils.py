@@ -7,8 +7,10 @@ import os
 import zlib
 from pathlib import Path
 
+from const import GYAT_OBJECTS
 
-def find_repo_gyat(cur_path: str = ".") -> Path:
+
+def find_repo_gyat(cur_path: str = ".") -> Path | None:
     abs_path = Path.absolute(cur_path)
 
     while abs_path:
@@ -18,13 +20,15 @@ def find_repo_gyat(cur_path: str = ".") -> Path:
 
         abs_path = abs_path / ".."
 
+    return None
+
 
 def deserialize_gyat_object(repo_parent: Path,
                             object_sha: str) -> tuple[bytes, bytes]:
 
     try:
         with open(
-             repo_parent / "objects" /
+             repo_parent / GYAT_OBJECTS /
              (object_sha[:2] + "/" + object_sha[2:]),
              mode="rb") as file:
 
@@ -40,7 +44,7 @@ def deserialize_gyat_object(repo_parent: Path,
 
 
 def create_git_object(parent_repo: Path, sha: str, data):
-    os.makedirs(parent_repo / "objects" / f"{sha[:2]}", exist_ok=True)
+    os.makedirs(parent_repo / GYAT_OBJECTS / f"{sha[:2]}", exist_ok=True)
 
-    with open(parent_repo / "objects" / f"{sha[:2]}/{sha[2:]}", "wb") as f:
+    with open(parent_repo / GYAT_OBJECTS / f"{sha[:2]}/{sha[2:]}", "wb") as f:
         f.write(zlib.compress(data))

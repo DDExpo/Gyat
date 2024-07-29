@@ -1,11 +1,13 @@
 import zlib
 from pathlib import Path
 
+from const import GYAT_OBJECTS
+
 
 def gyat_cat_file(parent_repo: Path, shas_file: str) -> None:
 
     data = open(
-        parent_repo / "objects" /
+        parent_repo / GYAT_OBJECTS /
         Path(shas_file[:2]) / Path(shas_file[2:]),
         "rb"
     ).read()

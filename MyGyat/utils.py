@@ -1,7 +1,6 @@
 from hashlib import sha1
 from pathlib import Path
 
-from gyat_exceptions import IsNotCommitError
 from utils_utils import (
     create_git_object, deserialize_gyat_object, find_repo_gyat)
 
@@ -30,25 +29,9 @@ def create_tag(path_file: Path, create_f: bool = False) -> str:
     return sha
 
 
-def is_gyat_object(object_sha: str, gyat_obj_type: str):
+def is_gyat_object(repo: Path, object_sha: str, gyat_obj_type: str) -> bool:
 
-    header = deserialize_gyat_object(object_sha)[0]
+    header = deserialize_gyat_object(repo_parent=repo,
+                                     object_sha=object_sha)[0]
     object_type = header.decode('utf-8').strip().split()[0]
-    if not object_type == gyat_obj_type:
-        raise IsNotCommitError(object_sha)
-
-
-def repo_is_gyat(cur_path: str = ".", required: bool = False) -> bool:
-    abs_path = Path.absolute(cur_path)
-
-    while abs_path:
-
-        if (abs_path / ".gyat").exists():
-            return True
-
-        abs_path = abs_path / ".."
-
-    if required:
-        raise Exception("No git directory.")
-
-    return False
+    return object_type == gyat_obj_type

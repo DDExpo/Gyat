@@ -1,9 +1,10 @@
-import argparse
 import sys
 import os
+import cmd
 from pathlib import Path
 
-from utils import repo_is_gyat
+from utils_utils import find_repo_gyat
+from args_parser import arparser_settings
 from abstr_command import (
     cmd_add, cmd_cat_file, cmd_check_ignore, cmd_checkout, cmd_commit,
     cmd_commit_tree, cmd_hash_object, cmd_init, cmd_log, cmd_ls_files,
@@ -12,65 +13,109 @@ from abstr_command import (
 )
 
 
-def main(argv: str = sys.argv[1:]):
+class GyatConsole(cmd.Cmd):
+    intro = 'Welcome to Gyat. Type help or ? to list commands.\n'
+    prompt = '$gyat '
+    arg_parser = arparser_settings()
 
-    if not repo_is_gyat(Path(os.getcwd())):
-        print("Current directory not a gyat dir!")
-        return 1
+    def precmd(self, line: str) -> str:
+        if not find_repo_gyat(Path(os.getcwd())):
+            print("Current directory is not a gyat dir!")
+            return False
+        return super().precmd(self.arg_parser.parse_args(line))
 
-    arg_parser = argparse.ArgumentParser()
-    argsubparsers = arg_parser.add_subparsers(title="Commands", dest="command")
-    argsubparsers.required = True
+    def do_pwd(self, args):
+        '''show current directory'''
+        print(f"{os.getcwd()}")
 
-    argsp_init = argsubparsers.add_parser(
-        "init", help="Initialize a new, empty repository.")
-    argsp_init.add_argument(
-        "path", metavar="directory", nargs="?", default=".",
-        help="Where to create the repository."
-    )
-    argsp_log = argsubparsers.add_parser(
-        "log", help="Display history of a given commit.")
-    argsp_log.add_argument(
-        "commit", default="HEAD", nargs="?", help="Commit to start at.")
-    argsp_hash = argsubparsers.add_parser(
-        "hash-object",
-        help="Hash object with sha1 and optionaly write object to disk.")
-    argsp_hash.add_argument(
-        "-t", dest="type", choices=["blob", "commit", "tag", "tree"],
-        default="blob", help="Create object.")
-    argsp_hash.add_argument(
-        "-w", dest="write", action="store_true", help="Create object.")
-    argsp_hash.add_argument(
-        "path", help="Where to create the object."
-    )
-    argsp_cat = argsubparsers.add_parser(
-        "cat-file", help="view gyat objects")
-    argsp_cat.add_argument("sha", help="Objets hash.")
+    def do_ls(self, args):
+        '''List all directories in current directory'''
+        print(f'{" -".join(os.listdir())}')
 
-    args = arg_parser.parse_args(argv)
-    match args.command:
-        case "add"          : cmd_add(args)
-        case "ls-tree"      : cmd_ls_tree(args)
-        case "commit-tree"  : cmd_commit_tree(args)
-        case "write-tree"   : cmd_write_tree(args)
-        case "cat-file"     : cmd_cat_file(args)
-        case "check-ignore" : cmd_check_ignore(args)
-        case "checkout"     : cmd_checkout(args)
-        case "commit"       : cmd_commit(args)
-        case "hash-object"  : cmd_hash_object(args)
-        case "init"         : cmd_init(args)
-        case "log"          : cmd_log(args)
-        case "ls-files"     : cmd_ls_files(args)
-        case "rev-parse"    : cmd_rev_parse(args)
-        case "rm"           : cmd_rm(args)
-        case "show-ref"     : cmd_show_ref(args)
-        case "status"       : cmd_status(args)
-        case "tag"          : cmd_tag(args)
-        case _              : print("Bad command.")
+    def do_cd(self, args):
+        '''Move to a new directory'''
+        if args:
+            try:
+                os.chdir(args)
+                print(f'Changed directory to: {os.getcwd()}')
+            except FileNotFoundError:
+                print(f'Directory not found: {args}')
+            except NotADirectoryError:
+                print(f'Not a directory: {args}')
+            except PermissionError:
+                print(f'Permission denied: {args}')
+
+    def do_mkdir(self, args):
+        '''Create directory'''
+        os.makedirs(Path(os.getcwd() + '/' + args), exist_ok=True)
+
+    def do_rms(self, args):
+        '''Remove directory/file'''
+        os.remove(Path(os.getcwd() + '/' + args))
+
+    def do_mkfil(self, args):
+        '''Cretate file'''
+        if not args:
+            print('File name coudnt be empty')
+        else:
+            open(file=args, mode='w', encoding='utf-8')
+
+    def do_init(self, args):
+        '''Initialize a new repository'''
+        cmd_init(args)
+        print("Initialized empty Git repository")
+
+    def do_cat_file(self, args,):
+        '''Retrieve information or content of a Git object.'''
+        cmd_cat_file(args)
+
+    def do_hash_object(self, args):
+        '''Compute the SHA-1 hash of a file's content'''
+        cmd_hash_object(args)
+
+    def do_ls_tree(self, args):
+        '''List the contents of a Git tree object.'''
+        cmd_ls_tree(args)
+
+    def do_write_tree(self, args):
+        '''Create a new tree object from the current index.'''
+        user_input = args.strip().split()
+        cmd_write_tree(user_input[0])
+
+    def do_commit_tree(self, args):
+        '''
+        Create a new commit object from a tree object
+        and optional parent commits.
+        '''
+        cmd_write_tree(args)
+
+    def do_clone(self, args):
+        '''Clone a repository into a new directory'''
+        print(f"Cloning into {args}...")
+
+    def do_status(self, args):
+        '''Show the working tree status'''
+        print("On branch main\nnothing to commit, working tree clean")
+
+    def do_add(self, args):
+        '''Add file contents to the index'''
+        print(f"Adding file {args}")
+
+    def do_yapping(self, args):
+        '''Record changes to the repository'''
+        print(f"[main (root-commit) abcd123] {args}")
+
+    def do_exit(self, args):
+        '''Exit the console'''
+        return True
+
+    def do_quit(self, args):
+        '''Exit the console'''
+        return True
+
+    def default(self, line):
+        print(f'Unknown command: {line}')
 
 
-if __name__ == '__main__':
-    while True:
-        exit_code = main()
-        if not exit_code:
-            break
+if __name__ == "__main__":
+    GyatConsole().cmdloop()

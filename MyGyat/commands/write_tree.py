@@ -6,7 +6,7 @@ from const import BASE_DIR, GYATIGNORE
 from utils import create_blob, create_git_object
 
 
-def gyat_write_tree(path_dir: Path = BASE_DIR) -> str:
+def gyat_write_tree(path_dir: Path = BASE_DIR, write_tree: bool = True) -> str:
 
     def write_tree(path_name: Path):
         tree = []
@@ -36,6 +36,7 @@ def gyat_write_tree(path_dir: Path = BASE_DIR) -> str:
         return tree_data, sha1_tree
 
     content, sha_tree = write_tree(path_dir)
-    create_git_object(sha=sha_tree, data=content)
+    if write_tree:
+        create_git_object(sha=sha_tree, data=content)
 
     return sha_tree

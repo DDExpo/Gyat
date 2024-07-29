@@ -1,23 +1,22 @@
-from pprint import pprint
 import zlib
+from pprint import pprint
+from pathlib import Path
 
-from utils_utils import find_repo_gyat
+from const import GYAT_OBJECTS
 
 
-def gyat_log(cur_repo: str, commit_sha: str) -> None:
-
-    parent_dir = find_repo_gyat(cur_repo)
+def gyat_log(cur_repo: Path, commit_sha: str) -> None:
 
     def recursia(cur_com_sha: str, num: int = 0):
 
         try:
             with open(
-                 parent_dir / "objects" /
+                 cur_repo / GYAT_OBJECTS /
                  (cur_com_sha[:2] + "/" + cur_com_sha[2:]), mode="rb"
                  ) as commit:
 
                 data_decompressed = zlib.decompress(commit.read())
-                _, content = data_decompressed.split(b"\0", 1)
+                header, content = data_decompressed.split(b"\0", 1)
 
                 parsed_commit = content.decode("utf-8").split("\n")
                 pprint(parsed_commit)
@@ -26,12 +25,12 @@ def gyat_log(cur_repo: str, commit_sha: str) -> None:
                 # never going to change so, its ok
                 if "parent" in parsed_commit[1]:
                     recursia(parsed_commit[1].strip().split()[1], num-1)
-                else:
-                    return (f"     {parsed_commit[-1]}\n"
-                            f"     ( {num + -num} )\n   "
-                            "            |              ")
+                return (f"     {parsed_commit[-1]}\n"
+                        f"     ( {num + -num} )\n   "
+                        "            |              ")
 
         except FileNotFoundError:
             print(f"File: {cur_com_sha[:2] + cur_com_sha[2:]} wasnt found")
+            return
 
     recursia(commit_sha)

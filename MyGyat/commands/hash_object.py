@@ -1,25 +1,36 @@
 from pathlib import Path
 
+from utils import create_blob
 from commands.write_tree import gyat_write_tree
 from commands.commit_tree import gyat_commit_tree
-from utils import create_blob
 
 
-def gyat_hash_object(path_file: Path, mkfile: bool, object_type: str) -> None:
+# TODO implement validation for tree and commit
 
-    if mkfile:
-        sha_content = ""
+def gyat_hash_object(path_object: Path, mkfile: bool,
+                     object_type: str) -> None:
 
-        if object_type == "blob":
-            sha_content = create_blob(path_file, True)
+    sha_content = ""
 
-        elif object_type == "tree":
-            sha_content = gyat_write_tree(path_file, True)
+    if object_type == "blob":
+        if not path_object.is_file():
+            print("Path should be to a file!")
+            return
+        sha_content = create_blob(path_file=path_object, create_f=mkfile)
 
-        elif object_type == "commit":
-            sha_content = gyat_commit_tree(path_file, True)
+    elif object_type == "tree":
+        if not path_object.is_dir():
+            print("Path should be to a directory!")
+            return
+        sha_content = "Not implemented"
 
-        elif object_type == "tag":
-            pass
+    elif object_type == "commit":
+        if not path_object.is_file():
+            print("Path should be to a file!")
+            return
+        sha_content = "Not implemented"
+
+    elif object_type == "tag":
+        pass
 
     print(sha_content, end="")
