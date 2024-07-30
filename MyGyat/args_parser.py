@@ -1,10 +1,10 @@
-import argparse
+from argparser_class import ArgumentParserNotExit
 
 
 def arparser_settings():
-    arg_parser = argparse.ArgumentParser()
+    arg_parser = ArgumentParserNotExit(exit_on_error=False)
     argsubparsers = arg_parser.add_subparsers(title="Commands", dest="command")
-    argsubparsers.required = True
+    argsubparsers.required = False
 
     argsp_ls_tree = argsubparsers.add_parser(
         "ls-tree", help="View tree object from the dir.")

@@ -14,3 +14,11 @@ class IsNotTreeError(Exception):
             self.message = f"Object: {sha_tree} is not Tree!"
         else:
             self.message = None
+
+
+class NecessaryArgsError(Exception):
+    def __init__(self, message: str):
+        if message:
+            self.message = f"Object: {message} is not Tree!"
+        else:
+            self.message = None

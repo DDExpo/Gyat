@@ -5,11 +5,12 @@ from gyat_exceptions import IsNotCommitError, IsNotTreeError
 from const import GYAT_OBJECTS
 from utils import is_gyat_object, find_repo_gyat
 
-
 from commands import (
     gyat_cat_file, gyat_commit_tree, gyat_hash_object, gyat_ls_tree,
     gyat_write_tree, gyat_init, gyat_log)
 
+
+# TODO REFACTOR TRY EXCEPT VYRVIGLAZNYI GOVNOCOD
 
 def cmd_add(args) -> None:
     # Implement the 'add' functionality
@@ -20,13 +21,13 @@ def cmd_ls_tree(args) -> None:
 
     sha_tree = args.sha
     base_dir = find_repo_gyat(Path(os.getcwd()))
+
     try:
         if not (base_dir / GYAT_OBJECTS /
                 (sha_tree[:2] + "/" + sha_tree[2:])).exists():
             raise FileNotFoundError
         if not is_gyat_object(base_dir, sha_tree, "tree"):
             raise IsNotTreeError(sha_tree)
-
     except PermissionError as e:
         print(
             "Permission to object: " +
@@ -45,13 +46,13 @@ def cmd_commit_tree(args) -> None:
     sha_tree = args.sha
     base_dir = find_repo_gyat(Path(os.getcwd()))
     parent, message = args.p, args.m
+
     try:
         if not (base_dir / GYAT_OBJECTS /
                 (sha_tree[:2] + "/" + sha_tree[2:])).exists():
             raise FileNotFoundError
         if not is_gyat_object(base_dir, sha_tree, "tree"):
             raise IsNotTreeError(sha_tree)
-
     except PermissionError as e:
         print(
             "Permission to object: " +
@@ -61,6 +62,7 @@ def cmd_commit_tree(args) -> None:
         print(f"sha key invalid or object is not exist\nerror: {e}")
     except IsNotTreeError as e:
         print(f"error: {e}")
+
     gyat_commit_tree(
         parent_repo=base_dir, sha_tree=sha_tree,
         is_parent=parent, is_message=message)
@@ -68,12 +70,14 @@ def cmd_commit_tree(args) -> None:
 
 def cmd_write_tree(args) -> None:
     directory = Path(args.path)
+
     if not directory.exists():
         print(f"Path to {directory} is not exists")
         return
     elif not directory.is_dir():
         print("Directory should be directory and not a file")
         return
+
     gyat_write_tree(directory)
 
 

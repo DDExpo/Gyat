@@ -5,6 +5,7 @@ from const import GYAT_OBJECTS
 
 def gyat_ls_tree(base_dir, args, sha_tree: str) -> None:
 
+    # TODO make it
     if args.name_only:
         with open(base_dir / GYAT_OBJECTS / (sha_tree[:2] + sha_tree[2:]),
                   "rb") as f:
