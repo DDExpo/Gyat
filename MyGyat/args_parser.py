@@ -73,7 +73,7 @@ def arparser_settings():
     argsp_tag.add_argument(
         "-m", nargs="?", default="", help="Tags message.")
     argsp_tag.add_argument(
-        "sha", nargs="?", default="HEAD",
+        "obj", nargs="?", default="HEAD",
         help="The object the new tag will point to."
     )
 

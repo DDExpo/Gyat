@@ -17,6 +17,6 @@ def gyat_tag(
             base_dir, obj)[0].decode("utf-8").split()[0]
 
         data = (f"object: {object}\ntype: {type_obj}\n"
-                f"tag: {tag_name}\ntagger:\n\n{message}")
+                f"tag: {tag_name}\ntagger:\n\n{message}").encode("utf-8")
 
         create_gyat_object(base_dir, object, data, "tag")

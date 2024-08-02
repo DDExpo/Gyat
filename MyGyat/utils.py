@@ -1,8 +1,8 @@
-import re
 from hashlib import sha1
 from pathlib import Path
 from functools import wraps
 
+from const import INVALID_CHARS_TAG
 from gyat_exceptions import IsNotSameTypeError
 from utils_utils import create_gyat_object, deserialize_gyat_object
 
@@ -52,11 +52,11 @@ def is_gyat_object(repo: Path, object_sha: str, gyat_obj_type: str) -> bool:
         raise IsNotSameTypeError(object_type, gyat_obj_type)
 
 
-def valid_tag_name(name: str) -> bool:
-    '''Validate name of the tag by the git standarts'''
+def valid_tag_name(name: str):
+    '''Almost validate name of the tag by the git standarts'''
 
-    pattern = re.compile(
-        r"^(?!@)(?!.*//)(?!.*\.\.)[^@\000-\037\177 ~"
-        r"^:?*[](?<!\.(lock|))(?<!\.)$")
-
-    return pattern.match(name)
+    for char in INVALID_CHARS_TAG:
+        if char in name:
+            f"Not a valid tag name! char: {char}"
+            return False
+    return True

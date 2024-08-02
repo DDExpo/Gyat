@@ -4,8 +4,8 @@ from pathlib import Path
 from const import GYAT_OBJECTS
 
 
-def gyat_ls_tree(base_dir: Path, name_only: bool, object_only: bool,
-                 full_tree: bool, sha_tree: str) -> None:
+def gyat_ls_tree(
+     base_dir: Path, sha_tree: str, output_format: str) -> None:
 
     with open(
          base_dir / GYAT_OBJECTS / (sha_tree[:2] + "/" + sha_tree[2:]),
@@ -26,11 +26,9 @@ def gyat_ls_tree(base_dir: Path, name_only: bool, object_only: bool,
 
             binary_data = binary_data[20:]
 
-            if name_only:
+            if output_format == "name_only":
                 print(name)
-            elif object_only:
+            elif output_format == "object_only":
                 print(sha)
-            elif full_tree:
+            elif output_format == "full_tree":
                 print(f"{mode} {type_object} {sha} {name}")
-            else:
-                print(name)

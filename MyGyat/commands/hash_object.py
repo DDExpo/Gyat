@@ -7,8 +7,9 @@ from commands.commit_tree import gyat_commit_tree
 
 # TODO implement validation for tree and commit
 
-def gyat_hash_object(path_object: Path, mkfile: bool,
-                     object_type: str) -> None:
+def gyat_hash_object(
+     path_object: Path, base_dir: Path,
+     object_type: str, write_obj: bool) -> None:
 
     sha_content = ""
 
@@ -16,7 +17,7 @@ def gyat_hash_object(path_object: Path, mkfile: bool,
         if not path_object.is_file():
             print("Path should be to a file!")
             return
-        sha_content = create_blob(path_file=path_object, create_f=mkfile)
+        sha_content = create_blob(base_dir, path_object, write_obj)
 
     elif object_type == "tree":
         if not path_object.is_dir():

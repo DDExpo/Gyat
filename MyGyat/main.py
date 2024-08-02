@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from const import GYAT_OBJECTS_FILES, GYAT_OBJECTS
+from utils import valid_tag_name
 from args_parser import arparser_settings
 from cmd_with_do_nothing import CmdWithDoNothnglLogic
 from abstr_command import (
@@ -27,15 +29,17 @@ class GyatConsole(CmdWithDoNothnglLogic):
         '''List the contents of a Gyat tree object.'''
         args = self._parse_args("ls_tree", args)
         if args:
-            if self._pre_command_execution_validation(args, obj_type="tree"):
-                cmd_ls_tree(args, self.base_dir)
+            sha = args.sha
+            obj_path = (GYAT_OBJECTS / sha[:2] / sha[2:]).resolve()
+            if self._pre_command_execution_validation(sha, obj_path, "tree"):
+                cmd_ls_tree(self.base_dir, sha, args.f)
 
     def do_write_tree(self, args):
         '''Create a new tree object from the current index.'''
         args = self._parse_args("write_tree", args)
         if args:
-            obj_path = Path(args.path).absolute()
-            if self._pre_command_execution_validation(args, obj_path=obj_path):
+            obj_path = Path(args.path).resolve()
+            if self._pre_command_execution_validation(obj_path=obj_path):
                 cmd_write_tree(obj_path, self.base_dir, args.w)
 
     def do_commit_tree(self, args):
@@ -45,32 +49,47 @@ class GyatConsole(CmdWithDoNothnglLogic):
         '''
         args = self._parse_args("commit_tree", args)
         if args:
-            if self._pre_command_execution_validation(args, obj_type="tree"):
-                cmd_commit_tree(args, self.base_dir)
+            sha = args.sha
+            obj_path = (GYAT_OBJECTS / sha[:2] / sha[2:]).resolve()
+            if self._pre_command_execution_validation(sha, obj_path, "tree"):
+                cmd_commit_tree(self.base_dir, sha, args.p, args.m, args.w)
 
     def do_hash_object(self, args):
-        '''Compute the SHA-1 hash of a file's content'''
+        '''Compute the SHA-1 hash of the given file'''
         args = self._parse_args("hash_object", args)
         if args:
-            obj_path = Path(args.path).absolute()
-            if self._pre_command_execution_validation(args, obj_path=obj_path):
-                cmd_hash_object(args.path, base_dir=self.base_dir)
+            obj_path = Path(args.path).resolve()
+            obj_type = args.t
+            if self._pre_command_execution_validation(obj_path=obj_path):
+                if obj_type == "tree" and not obj_path.is_dir():
+                    print(f"Path: {obj_path} isnt directory!")
+                elif obj_type in GYAT_OBJECTS_FILES and not obj_path.is_file():
+                    print("Path should be to a file!")
+                else:
+                    cmd_hash_object(obj_path, self.base_dir, obj_type, args.w)
 
     def do_cat_file(self, args):
         '''Retrieve information or content of a Gyat object.'''
         args = self._parse_args("cat_file", args)
         if args:
-            cmd_cat_file(args, base_dir=self.base_dir)
+            sha = args.sha
+            obj_path = (GYAT_OBJECTS / sha[:2] / sha[2:]).resolve()
+            if self._pre_command_execution_validation(obj_path=obj_path):
+                cmd_cat_file(sha, self.base_dir)
 
     def do_show_ref(self, args):
-        '''Clone a repository into a new directory'''
-        cmd_show_ref()
+        '''List all referencies'''
+        if self._pre_command_execution_validation():
+            cmd_show_ref(self.base_dir)
 
     def do_tag(self, args):
-        '''Clone a repository into a new directory'''
+        '''Create tags'''
         args = self._parse_args("tag", args)
         if args:
-            cmd_tag(args, base_dir=self.base_dir)
+            tag_name = args.name
+            if valid_tag_name(tag_name):
+                if self._pre_command_execution_validation():
+                    cmd_tag(self.base_dir, tag_name, args.m, args.obj, args.a)
 
     def do_status(self, args):
         '''Show the working tree status'''

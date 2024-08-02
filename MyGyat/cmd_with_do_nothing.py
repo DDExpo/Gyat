@@ -72,7 +72,7 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
             print(e)
 
     def _pre_command_execution_validation(
-         self, args, obj_path: Path, obj_type: str = None) -> bool:
+         self, sha=None, obj_path: Path = ".", obj_type: str = None) -> bool:
         '''
         func to validate data given by user and context, when input
         was parsed but not executed yet
@@ -83,7 +83,7 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
             if not obj_path.exists():
                 raise FileNotFoundError
             if obj_type:
-                is_gyat_object(self.base_dir, args.sha, obj_type)
+                is_gyat_object(self.base_dir, sha, obj_type)
             return True
         except PermissionError as e:
             print(f"error: {e}")
