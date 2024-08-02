@@ -4,7 +4,7 @@ from pathlib import Path
 from const import GYAT_OBJECTS
 
 
-def gyat_init(path_dir: Path, force_create: bool = False) -> None:
+def gyat_init(path_dir: Path, force_create: bool) -> None:
 
     os.makedirs(path_dir / ".gyat", exist_ok=force_create)
     os.makedirs(path_dir / GYAT_OBJECTS, exist_ok=force_create)

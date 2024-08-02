@@ -1,24 +1,44 @@
 import re
 from hashlib import sha1
 from pathlib import Path
+from functools import wraps
 
 from gyat_exceptions import IsNotSameTypeError
-from utils_utils import (
-    create_gyat_object, deserialize_gyat_object, find_repo_gyat)
+from utils_utils import create_gyat_object, deserialize_gyat_object
 
 
-def wrapper_try_except():
-    pass
+def catch_common_exceptions_with_args(func):
+    def catch_common_exceptions(func):
+        @wraps
+        def wrapper(*args, **kwargs):
+            try:
+                func()
+            except PermissionError as e:
+                print(f"error: {e}")
+            except TypeError as e:
+                print(f"error: {e}")
+            except FileNotFoundError as e:
+                print("sha key invalid or object does not exist\n"
+                      f"error: {e}")
+            except (UnicodeEncodeError, UnicodeDecodeError) as e:
+                print(f"error: {e}")
+            except BaseException as e:
+                print(f"Something went wrong {e}")
+        return wrapper
+    return catch_common_exceptions
 
 
-def create_blob(path_file: Path, create_f: bool = False) -> str:
+def create_blob(base_dir: Path, path_file: Path,
+                create_f: bool = False) -> str:
+    '''Create sha of the given object, optionally write blob to a disk'''
+
     data = open(path_file, "rb").read()
     header = f"blob {len(data)}\x00".encode("utf-8")
     sha = sha1(header+data).hexdigest()
 
     if create_f:
-        create_gyat_object(
-            parent_repo=find_repo_gyat(), sha=sha, data=header+data, obj_type="blob")
+        create_gyat_object(parent_repo=base_dir, sha=sha,
+                           data_bytes=header+data)
 
     return sha
 
@@ -36,6 +56,7 @@ def valid_tag_name(name: str) -> bool:
     '''Validate name of the tag by the git standarts'''
 
     pattern = re.compile(
-        r"^(?!@)(?!.*//)(?!.*\.\.)[^@\000-\037\177 ~^:?*[](?<!\.(lock|))(?<!\.)$")
+        r"^(?!@)(?!.*//)(?!.*\.\.)[^@\000-\037\177 ~"
+        r"^:?*[](?<!\.(lock|))(?<!\.)$")
 
     return pattern.match(name)

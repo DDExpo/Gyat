@@ -1,21 +1,23 @@
 import os
 import cmd
-import argparse
-from argparse import ArgumentError, Namespace
 from pathlib import Path
+from pprint import pprint
+from argparse import ArgumentError, Namespace, _SubParsersAction
 
 from const import GYAT_COMMANDS
+from utils import is_gyat_object
 from utils_utils import find_repo_gyat
-from gyat_exceptions import NecessaryArgsError, IsNotGyatDirError
+from gyat_exceptions import (
+    NecessaryArgsError, IsNotGyatDirError, IsNotSameTypeError)
 from args_parser import arparser_settings
 
 
 class CmdWithDoNothnglLogic(cmd.Cmd):
     '''
-    Implementation of Cmd with do nothing logic
-    So in some scenarios we shouldnt return or do anything
-    For example when we computing command we catch exception and print error
-    thats all, we dont go deeper.
+    Implementation of Cmd with do nothing logic. So in some scenarios
+    we shouldnt return or do anything for example when we parse command
+    we catch exception and print error so we return None thats all,
+    we dont go deeper, or do some strange shit as execute last command.
     '''
 
     arg_parser = arparser_settings()
@@ -53,7 +55,7 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
         # Getting helper of argparser to replace cmds
         commands = [
             act for act in self.arg_parser._actions if
-            isinstance(act, argparse._SubParsersAction)
+            isinstance(act, _SubParsersAction)
         ][0].choices
 
         if arg_com in commands:
@@ -68,3 +70,69 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
             print(e)
         except ArgumentError as e:
             print(e)
+
+    def _pre_command_execution_validation(
+         self, args, obj_path: Path, obj_type: str = None) -> bool:
+        '''
+        func to validate data given by user and context, when input
+        was parsed but not executed yet
+        '''
+
+        try:
+            self.base_dir = find_repo_gyat(Path(os.getcwd()))
+            if not obj_path.exists():
+                raise FileNotFoundError
+            if obj_type:
+                is_gyat_object(self.base_dir, args.sha, obj_type)
+            return True
+        except PermissionError as e:
+            print(f"error: {e}")
+        except TypeError as e:
+            print(f"error: {e}")
+        except FileNotFoundError as e:
+            print("sha key invalid or object does not exist\n"
+                  f"error: {e}")
+        except IsNotSameTypeError as e:
+            print(f"error: {e}")
+        except (UnicodeEncodeError, UnicodeDecodeError) as e:
+            print(f"error: {e}")
+        except IsNotGyatDirError as e:
+            print(f"error {e}")
+        except BaseException as e:
+            print(f"Something went wrong {e}")
+
+    def do_pwd(self, args):
+        '''show current directory'''
+        print(f"{os.getcwd()}")
+
+    def do_ls(self, args):
+        '''List all directories in current directory'''
+        pprint(f'{" --".join(os.listdir())}', depth=78, width=78)
+
+    def do_cd(self, args):
+        '''Move to a new directory'''
+        if args:
+            try:
+                os.chdir(args)
+                print(f'Changed directory to: {os.getcwd()}')
+            except FileNotFoundError:
+                print(f'Directory not found: {args}')
+            except NotADirectoryError:
+                print(f'Not a directory: {args}')
+            except PermissionError:
+                print(f'Permission denied: {args}')
+
+    def do_mkdir(self, args):
+        '''Create directory'''
+        os.makedirs(Path(os.getcwd() + '/' + args), exist_ok=True)
+
+    def do_rms(self, args):
+        '''Remove directory/file'''
+        os.remove(Path(os.getcwd() + '/' + args))
+
+    def do_mkfil(self, args):
+        '''Cretate file'''
+        if not args:
+            print('File name coudnt be empty')
+        else:
+            open(file=args, mode='w', encoding='utf-8')

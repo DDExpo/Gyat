@@ -1,9 +1,11 @@
 import zlib
+from pathlib import Path
 
 from const import GYAT_OBJECTS
 
 
-def gyat_ls_tree(base_dir, args, sha_tree: str) -> None:
+def gyat_ls_tree(base_dir: Path, name_only: bool, object_only: bool,
+                 full_tree: bool, sha_tree: str) -> None:
 
     with open(
          base_dir / GYAT_OBJECTS / (sha_tree[:2] + "/" + sha_tree[2:]),
@@ -24,11 +26,11 @@ def gyat_ls_tree(base_dir, args, sha_tree: str) -> None:
 
             binary_data = binary_data[20:]
 
-            if args.name_only:
+            if name_only:
                 print(name)
-            elif args.object_only:
+            elif object_only:
                 print(sha)
-            elif args.full_tree:
+            elif full_tree:
                 print(f"{mode} {type_object} {sha} {name}")
             else:
                 print(name)

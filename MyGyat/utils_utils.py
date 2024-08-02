@@ -35,7 +35,7 @@ def deserialize_gyat_object(
             mode="rb") as file:
 
         data_decompressed = zlib.decompress(file.read())
-        header, content = data_decompressed.split(b"\0", 1)
+        header, content = data_decompressed.split(b"\x00", 1)
 
         return header, content
 
