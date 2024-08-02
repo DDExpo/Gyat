@@ -6,9 +6,31 @@ def arparser_settings():
     argsubparsers = arg_parser.add_subparsers(title="Commands", dest="command")
     argsubparsers.required = False
 
+    argsp_tag = argsubparsers.add_parser(
+        "tag", help="list all tags if ar")
+    argsp_tag.add_argument(
+        "-a", action="store_true", help="Create annotated tag.")
+    argsp_tag.add_argument(
+        "name", help="Tags name.")
+    argsp_tag.add_argument(
+        "-m", nargs="?", default="", help="Tags message.")
+    argsp_tag.add_argument(
+        "obj", nargs="?", default="HEAD",
+        help="The object the new tag will point to."
+    )
+
+    argsp_checkout = argsubparsers.add_parser(
+        "checkout", help="Checkout a commit inside of a directory.")
+    argsp_checkout.add_argument(
+        "object", help="The commit or tree to checkout.")
+    argsp_checkout.add_argument(
+        "path", help="The empty directory to checkout on."
+    )
+
     argsp_ls_tree = argsubparsers.add_parser(
-        "ls-tree", help="View tree object from the dir.")
-    argsp_ls_tree.add_argument("sha", type=str, help="Sha of the tree.")
+        "ls_tree", help="View tree object from the dir.")
+    argsp_ls_tree.add_argument(
+        "sha", help="Sha of the tree.")
     argsp_ls_tree.add_argument(
         "--name-only", action="store_true",
         help="Show only the names of files.")
@@ -16,15 +38,12 @@ def arparser_settings():
         "--object-only", action="store_true",
         help="Show only the object information.")
     argsp_ls_tree.add_argument(
-        "--full-name", action="store_true",
-        help="Show full names of files.")
-    argsp_ls_tree.add_argument(
         "--full-tree", action="store_true",
-        help="Show the full tree structure."
+        help="Show full names of files."
     )
 
     argsp_commit_tree = argsubparsers.add_parser(
-        "commit-tree", help=" Create a tree object from the dir.")
+        "commit_tree", help=" Create a tree object from the dir.")
     argsp_commit_tree.add_argument(
         "path", metavar="directory", nargs="?", default=".",
         help="Where to start.")
@@ -35,7 +54,7 @@ def arparser_settings():
     )
 
     argsp_write_tree = argsubparsers.add_parser(
-        "write-tree", help=" Create a tree object from the dir.")
+        "write_tree", help=" Create a tree object from the dir.")
     argsp_write_tree.add_argument(
         "path", metavar="directory", nargs="?", default=".",
         help="Where to start."
@@ -55,7 +74,7 @@ def arparser_settings():
     )
 
     argsp_hash = argsubparsers.add_parser(
-        "hash-object",
+        "hash_object",
         help="Hash object with sha1 and optionaly write object to disk.")
     argsp_hash.add_argument(
         "-t", dest="type", choices=["blob", "commit", "tag", "tree"],
@@ -66,7 +85,8 @@ def arparser_settings():
         "path", help="Path to object."
     )
 
-    argsp_cat = argsubparsers.add_parser("cat-file", help="view gyat objects")
+    argsp_cat = argsubparsers.add_parser(
+        "cat_file", help="view gyat objects")
     argsp_cat.add_argument(
         "sha", help="Objets hash."
     )

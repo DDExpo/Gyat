@@ -1,17 +1,16 @@
 
 
-class IsNotCommitError(Exception):
-    def __init__(self, sha_commit: str):
-        if sha_commit:
-            self.message = f"Object: {sha_commit} is not Commit!"
-        else:
-            self.message = None
+class IsNotGyatDirError(Exception):
+
+    def __str__(self) -> str:
+        return "Current directory not a gyat directory!"
 
 
-class IsNotTreeError(Exception):
-    def __init__(self, sha_tree: str):
-        if sha_tree:
-            self.message = f"Object: {sha_tree} is not Tree!"
+class IsNotSameTypeError(Exception):
+    def __init__(self, object_type: str, given_object_type):
+        if object_type:
+            self.message = (f"Object type what was given: {given_object_type}"
+                            f" is not {object_type}!")
         else:
             self.message = None
 

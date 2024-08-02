@@ -1,25 +1,18 @@
-import zlib
 from pathlib import Path
 
-from const import GYAT_OBJECTS
+from utils_utils import deserialize_gyat_object
 
 
 def gyat_cat_file(parent_repo: Path, shas_file: str) -> None:
 
-    data = open(
-        parent_repo / GYAT_OBJECTS /
-        Path(shas_file[:2]) / Path(shas_file[2:]),
-        "rb"
-    ).read()
-    data_decompressed = zlib.decompress(data)
-    header, content = data_decompressed.split(b"\0", 1)
+    header, content = deserialize_gyat_object(parent_repo, shas_file)
     object_type = header.decode('utf-8').split()[0]
 
     print(f"header: {header.decode('utf-8')}")
 
     try:
         if object_type == "tree":
-            content = content.decode("utf-8")
+            content = content
         elif object_type in ("commit", "tag"):
             parse_content = content.decode("utf-8").split("\n")
             content = ""

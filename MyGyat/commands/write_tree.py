@@ -3,7 +3,7 @@ from pathlib import Path
 from hashlib import sha1
 
 from const import BASE_DIR, GYATIGNORE
-from utils import create_blob, create_git_object
+from utils import create_blob, create_gyat_object
 
 
 def gyat_write_tree(path_dir: Path = BASE_DIR, write_tree: bool = True) -> str:
