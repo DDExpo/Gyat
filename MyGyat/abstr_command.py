@@ -1,13 +1,8 @@
-import os
 from pathlib import Path
-
-from gyat_exceptions import IsNotSameTypeError, IsNotGyatDirError
-from const import GYAT_OBJECTS
-from utils import is_gyat_object, valid_tag_name
 
 from commands import (
     gyat_cat_file, gyat_commit_tree, gyat_hash_object, gyat_ls_tree,
-    gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag)
+    gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag, gyat_ls_files)
 
 
 def cmd_init(cur_directory: Path) -> None:
@@ -60,6 +55,15 @@ def cmd_tag(base_dir, tag_name, message, obj, annotated_tag) -> None:
         gyat_show_ref(base_dir, tag=True)
 
 
+def cmd_ls_files(base_dir: Path, verbose: bool) -> None:
+    gyat_ls_files(base_dir, verbose)
+
+
+def cmd_status(args, base_dir: Path) -> None:
+    # Implement the 'status' functionality
+    pass
+
+
 def cmd_add(args, base_dir: Path) -> None:
     # Implement the 'add' functionality
     pass
@@ -77,10 +81,6 @@ def cmd_checkout(args, base_dir: Path) -> None:
 
 def cmd_commit(args, base_dir: Path) -> None:
     # Implement the 'commit' functionality
-
-
-def cmd_ls_files(args, base_dir: Path) -> None:
-    # Implement the 'ls-files' functionality
     pass
 
 
@@ -91,9 +91,4 @@ def cmd_rev_parse(args, base_dir: Path) -> None:
 
 def cmd_rm(args, base_dir: Path) -> None:
     # Implement the 'rm' functionality
-    pass
-
-
-def cmd_status(args, base_dir: Path) -> None:
-    # Implement the 'status' functionality
     pass

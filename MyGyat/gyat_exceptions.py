@@ -15,6 +15,12 @@ class IsNotSameTypeError(Exception):
             self.message = None
 
 
+class NotValidShaOrTagOrRef(Exception):
+
+    def __str__(self) -> str:
+        return "Not valid sha or Tag or Ref!"
+
+
 class NecessaryArgsError(Exception):
     def __init__(self, message: str):
         if message:

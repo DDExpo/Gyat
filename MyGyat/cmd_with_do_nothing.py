@@ -4,11 +4,11 @@ from pathlib import Path
 from pprint import pprint
 from argparse import ArgumentError, Namespace, _SubParsersAction
 
-from const import GYAT_COMMANDS
-from utils import is_gyat_object
-from utils_utils import find_repo_gyat
+from const import GYAT_COMMANDS, GYAT_REFS
+from utils import is_gyat_object, find_resolve_tag_ref
+from utils_utils import find_repo_gyat, get_all_files_name
 from gyat_exceptions import (
-    NecessaryArgsError, IsNotGyatDirError, IsNotSameTypeError)
+    NecessaryArgsError, IsNotGyatDirError, IsNotSameTypeError,)
 from args_parser import arparser_settings
 
 
@@ -22,6 +22,9 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
 
     arg_parser = arparser_settings()
     base_dir: Path = ""
+    # No comment
+    unique_names_ref_tags: set[str] = get_all_files_name(
+        find_repo_gyat() / GYAT_REFS)
 
     def precmd(self, line: str) -> str:
         try:
@@ -80,10 +83,12 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
 
         try:
             self.base_dir = find_repo_gyat(Path(os.getcwd()))
+            if sha.sha in self.unique_names_ref_tags:
+                sha.sha = find_resolve_tag_ref(self.base_dir, sha.sha)
             if not obj_path.exists():
                 raise FileNotFoundError
             if obj_type:
-                is_gyat_object(self.base_dir, sha, obj_type)
+                is_gyat_object(self.base_dir, sha.sha, obj_type)
             return True
         except PermissionError as e:
             print(f"error: {e}")

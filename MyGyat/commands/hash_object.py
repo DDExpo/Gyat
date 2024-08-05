@@ -14,21 +14,12 @@ def gyat_hash_object(
     sha_content = ""
 
     if object_type == "blob":
-        if not path_object.is_file():
-            print("Path should be to a file!")
-            return
         sha_content = create_blob(base_dir, path_object, write_obj)
 
     elif object_type == "tree":
-        if not path_object.is_dir():
-            print("Path should be to a directory!")
-            return
         sha_content = "Not implemented"
 
     elif object_type == "commit":
-        if not path_object.is_file():
-            print("Path should be to a file!")
-            return
         sha_content = "Not implemented"
 
     elif object_type == "tag":

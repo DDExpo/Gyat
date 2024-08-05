@@ -16,7 +16,7 @@ def arparser_settings():
     argsp_ls_tree = argsubparsers.add_parser(
         "ls_tree", help="View tree object from the dir.")
     argsp_ls_tree.add_argument(
-        "sha", help="Sha of the tree.")
+        "sha", help="Sha of the tree or ref/tag.")
     argsp_ls_tree.add_argument(
         "-f", dest="format", default="name-only",
         choices=["name-only", "object-only", "full-tree"],
@@ -37,7 +37,7 @@ def arparser_settings():
         help=("Write commit of a given tree object. "
               "with optional parent and message"))
     argsp_commit_tree.add_argument(
-        "sha", help="Sha of the Tree.")
+        "sha", help="Sha of the Tree or ref/tag.")
     argsp_commit_tree.add_argument(
         "-w", actions="store_true", help=" of commit.")
     argsp_commit_tree.add_argument(
@@ -61,7 +61,7 @@ def arparser_settings():
     argsp_cat = argsubparsers.add_parser(
         "cat_file", help="view gyat objects")
     argsp_cat.add_argument(
-        "sha", help="Objets hash."
+        "sha", help="Objets hash or ref/tag."
     )
 
     argsp_tag = argsubparsers.add_parser(
@@ -75,6 +75,12 @@ def arparser_settings():
     argsp_tag.add_argument(
         "obj", nargs="?", default="HEAD",
         help="The object the new tag will point to."
+    )
+
+    argsp_ls_files = argsubparsers.add_parser(
+        "ls_files",  help="List all the stage files.")
+    argsp_ls_files.add_argument(
+        "-v", action="store_true", help="Show everything."
     )
 
     argsp_checkout = argsubparsers.add_parser(

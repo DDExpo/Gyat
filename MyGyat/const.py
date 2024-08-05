@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 
@@ -6,11 +7,12 @@ GYAT_OBJECTS_FILES: set[str] = set(("commit", "tag", "blob"))
 GYAT_REFS: Path = Path(".gyat/refs")
 GYATIGNORE_DIR: set[str] = set((".gyat", ))
 REFS_NAMES: set[str] = set()
+HASHRE = re.compile(r"^[0-9A-Fa-f]{4,40}$")
 
-INVALID_CHARS_TAG = set(
+INVALID_CHARS_TAG = set((
     ' ', '~', '^', ':', '?', '*', '[', '\\', '..',
     '.lock', '/', '//', '@{', '@'
-)
+))
 
 BASE_DIR: Path = Path(__file__).parent
 

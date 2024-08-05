@@ -45,3 +45,50 @@ def create_gyat_object(parent_repo: Path, sha: str, data_bytes: bytes) -> None:
     os.makedirs(parent_repo / GYAT_OBJECTS / f"{sha[:2]}", exist_ok=True)
     with open(parent_repo / GYAT_OBJECTS / f"{sha[:2]}/{sha[2:]}", "wb") as f:
         f.write(zlib.compress(data_bytes))
+
+
+def resolve_refs(base_dir: Path) -> list[str, Path]:
+
+    refs: list[str, Path] = []
+
+    def recursia(cur_path: Path = Path("")):
+
+        try:
+            if (base_dir / cur_path).is_file():
+                content = open(base_dir / cur_path, "r",
+                               encoding="utf8").read().strip("\n")
+
+                # So refs is doubled [ref/ref] so we slice it
+                maybe_path = content.split()[-1][5:]
+                if (base_dir / maybe_path).exists():
+                    recursia(Path(maybe_path))
+                    return
+
+                refs.append(content, cur_path)
+                return
+            for next_path in os.listdir(base_dir / cur_path):
+                recursia(cur_path / Path(next_path))
+
+        except FileNotFoundError as e:
+            print(e)
+
+    recursia()
+
+    return refs
+
+
+def get_all_files_name(main_dir: Path) -> set[str]:
+
+    set_files: set[str] = set()
+    dirs: list[Path] = [main_dir]
+
+    while dirs:
+
+        cur_path = dirs.pop()
+
+        if cur_path.is_file():
+            set_files.add(cur_path.name())
+            continue
+
+        for next_path in os.listdir(cur_path):
+            dirs.append(next_path)

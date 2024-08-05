@@ -10,5 +10,5 @@ def gyat_init(path_dir: Path, force_create: bool) -> None:
     os.makedirs(path_dir / GYAT_OBJECTS, exist_ok=force_create)
     os.makedirs(path_dir / ".gyat/refs", exist_ok=force_create)
     os.makedirs(path_dir / ".gyat/refs/tags", exist_ok=force_create)
-    with open(path_dir / ".gyat/HEAD", "w") as f:
-        f.write("ref: refs/heads/main\n")
+    open(path_dir / ".gyat/HEAD", "w").write("ref: refs/heads/main\n")
+    open(path_dir / ".gyat/config", "w").close()
