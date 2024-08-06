@@ -2,13 +2,14 @@ from pathlib import Path
 
 from commands import (
     gyat_cat_file, gyat_commit_tree, gyat_hash_object, gyat_ls_tree,
-    gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag, gyat_ls_files)
+    gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag, gyat_ls_files,
+    gyat_check_ignore, gyat_status)
 
 
 def cmd_init(cur_directory: Path) -> None:
 
     flag = False
-    if (cur_directory / ".gyat").exists():
+    if (cur_directory / ".git").exists():
         print(
             "Directory already exist, still initialize gyat in this dir? (Y|n)"
         )
@@ -59,9 +60,8 @@ def cmd_ls_files(base_dir: Path, verbose: bool) -> None:
     gyat_ls_files(base_dir, verbose)
 
 
-def cmd_status(args, base_dir: Path) -> None:
-    # Implement the 'status' functionality
-    pass
+def cmd_status(base_dir: Path) -> None:
+    gyat_status(base_dir)
 
 
 def cmd_add(args, base_dir: Path) -> None:
@@ -69,9 +69,8 @@ def cmd_add(args, base_dir: Path) -> None:
     pass
 
 
-def cmd_check_ignore(args, base_dir: Path) -> None:
-    # Implement the 'check-ignore' functionality
-    pass
+def cmd_check_ignore(paths, base_dir: Path) -> None:
+    gyat_check_ignore(paths, base_dir)
 
 
 def cmd_checkout(args, base_dir: Path) -> None:

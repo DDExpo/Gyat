@@ -18,7 +18,7 @@ def find_repo_gyat(cur_path: str = ".") -> Path:
 
     while abs_path.name:
 
-        if (abs_path / ".gyat").exists():
+        if (abs_path / ".git").exists():
             return abs_path
 
         abs_path = abs_path.parent
@@ -35,7 +35,7 @@ def deserialize_gyat_object(
             mode="rb") as file:
 
         data_decompressed = zlib.decompress(file.read())
-        header, content = data_decompressed.split(b"\x00", 1)
+        header, content = data_decompressed.split(b"\x00", maxsplit=1)
 
         return header, content
 
@@ -49,30 +49,29 @@ def create_gyat_object(parent_repo: Path, sha: str, data_bytes: bytes) -> None:
 
 def resolve_refs(base_dir: Path) -> list[str, Path]:
 
-    refs: list[str, Path] = []
+    refs: list[tuple[str, Path]] = []
 
     def recursia(cur_path: Path = Path("")):
 
-        try:
-            if (base_dir / cur_path).is_file():
-                content = open(base_dir / cur_path, "r",
-                               encoding="utf8").read().strip("\n")
+        if (base_dir / cur_path).is_file():
+            content = open(base_dir / cur_path, "r",
+                           encoding="utf8").read().strip("\n")
 
-                # So refs is doubled [ref/ref] so we slice it
-                maybe_path = content.split()[-1][5:]
-                if (base_dir / maybe_path).exists():
-                    recursia(Path(maybe_path))
-                    return
-
-                refs.append(content, cur_path)
+            # So refs is doubled [ref/ref] so we slice it
+            maybe_path = content.split()[-1][5:]
+            if (base_dir / maybe_path).exists():
+                recursia(Path(maybe_path))
                 return
-            for next_path in os.listdir(base_dir / cur_path):
-                recursia(cur_path / Path(next_path))
 
+            refs.append((content, cur_path))
+            return
+        for next_path in os.listdir(base_dir / cur_path):
+            recursia(cur_path / Path(next_path))
+
+        try:
+            recursia()
         except FileNotFoundError as e:
             print(e)
-
-    recursia()
 
     return refs
 
@@ -92,3 +91,19 @@ def get_all_files_name(main_dir: Path) -> set[str]:
 
         for next_path in os.listdir(cur_path):
             dirs.append(next_path)
+
+
+def parse_gyatignore(gitignore_path: Path):
+
+    patterns = []
+    with open(gitignore_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if line.startswith('\\#'):
+                line = line[1:]
+            elif line.startswith('\\!'):
+                line = line[1:]
+            patterns.append(line)
+    return patterns

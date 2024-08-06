@@ -5,9 +5,11 @@ from hashlib import sha1
 from pathlib import Path
 from functools import wraps
 
+from commands.cat_file import gyat_cat_file
 from const import INVALID_CHARS_TAG, GYAT_REFS
 from gyat_exceptions import IsNotSameTypeError
-from utils_utils import create_gyat_object, deserialize_gyat_object
+from utils_utils import (
+    create_gyat_object, deserialize_gyat_object, parse_gyatignore)
 
 
 def catch_common_exceptions_with_args(func):
@@ -74,13 +76,17 @@ def find_resolve_tag_ref(paren_repo: Path, ref_tag: str) -> str:
 
     dirs: list[Path] = [paren_repo / GYAT_REFS]
 
+    if ref_tag == "HEAD":
+        dirs = [paren_repo / '.git/HEAD']
+
     while dirs:
 
         cur_path = dirs.pop()
 
         if cur_path.name == ref_tag:
             while True:
-                content = open(cur_path, "r", encoding="utf-8").read()
+                content = open(paren_repo / ".git/" / cur_path,
+                               "r", encoding="utf-8").read()
                 refs = re.search(r'^refs: (\w+)', content, re.MULTILINE)
                 if refs:
                     cur_path = refs.group(1)
@@ -94,6 +100,40 @@ def find_resolve_tag_ref(paren_repo: Path, ref_tag: str) -> str:
 
         for next_path in os.listdir(cur_path):
             dirs.append(cur_path / next_path)
+
+
+def gyatignore_read(base_dir: Path):
+
+    content_index = read_index(base_dir)
+    paths_index_rules = {}
+    path_exclude_rules = []
+
+    # Read local configuration in .git/info/exclude
+    repo_file = os.path.join(base_dir / ".git/info/exclude")
+    if os.path.exists(repo_file):
+        with open(repo_file, "r") as f:
+            path_exclude_rules.append(gyatignore_read(f.readlines()))
+
+    # Global configuration
+    if "XDG_CONFIG_HOME" in os.environ:
+        config_home = os.environ["XDG_CONFIG_HOME"]
+    else:
+        config_home = os.path.expanduser("~/.config")
+    global_file = os.path.join(config_home, "git/ignore")
+
+    if os.path.exists(global_file):
+        with open(global_file, "r") as f:
+            path_exclude_rules.append(gyatignore_read(f.readlines()))
+
+    # .gitignore files in the index
+    for entry in content_index:
+        if entry[12] == ".gitignore" or entry[12].endswith("/.gitignore"):
+            dir_name = os.path.dirname(entry[12])
+            _, content = gyat_cat_file(parent_repo=base_dir,
+                                       shas_file=entry[9])
+            lines = content.decode("utf8").splitlines()
+            paths_index_rules[dir_name] = parse_gyatignore(lines)
+    return (paths_index_rules, path_exclude_rules)
 
 
 def read_index(base_dir: Path) -> tuple[list[tuple], int]:
@@ -118,9 +158,10 @@ def read_index(base_dir: Path) -> tuple[list[tuple], int]:
             entries[0][14] = skip_worktree
             entries[0][15] = intent_to_add_flag
         else they value is -1
+        And version as integer
     '''
 
-    with open(base_dir / ".gyat/index", "rb") as f:
+    with open(base_dir / ".git/index", "rb") as f:
 
         raw = f.read()
 

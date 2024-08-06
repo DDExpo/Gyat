@@ -93,7 +93,10 @@ class GyatConsole(CmdWithDoNothnglLogic):
 
     def do_status(self, args):
         '''Show the working tree status'''
-        print("On branch main\nnothing to commit, working tree clean")
+        args = self._parse_args("status", args)
+        if args:
+            if self._pre_command_execution_validation():
+                cmd_status(self.base_dir)
 
     def do_ls_files(self, args):
         '''Displays inforamtion of files in the staging area.'''
@@ -101,6 +104,16 @@ class GyatConsole(CmdWithDoNothnglLogic):
         if args:
             if self._pre_command_execution_validation():
                 cmd_commit_tree(self.base_dir, args.v)
+
+    def do_check_ignore(self, args):
+        '''
+        check-ignore command, takes a list of paths and outputs back
+        those of those paths that should be ignored.
+        '''
+        args = self._parse_args("check_ignore", args)
+        if args:
+            if self._pre_command_execution_validation():
+                cmd_check_ignore(args.path, self.base_dir)
 
     def do_add(self, args):
         '''Add file contents to the index'''

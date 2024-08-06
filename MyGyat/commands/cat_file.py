@@ -3,7 +3,8 @@ from pathlib import Path
 from utils_utils import deserialize_gyat_object
 
 
-def gyat_cat_file(shas_file: str, parent_repo: Path) -> None:
+def gyat_cat_file(shas_file: str,
+                  parent_repo: Path) -> tuple[bytes, bytes | str]:
 
     header, content = deserialize_gyat_object(parent_repo, shas_file)
     object_type = header.decode('utf-8').split()[0]
@@ -22,3 +23,4 @@ def gyat_cat_file(shas_file: str, parent_repo: Path) -> None:
         content = content.decode("utf-8")
 
     print(f"content:\n{content}")
+    return (header, content)

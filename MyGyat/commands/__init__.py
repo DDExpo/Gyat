@@ -7,9 +7,13 @@ from .init import gyat_init
 from .show_ref import gyat_show_ref
 from .tag import gyat_tag
 from .ls_files import gyat_ls_files
+from .check_ignore import gyat_check_ignore
+from .status import gyat_status
 
 
 __all__ = [
+    "gyat_status",
+    "gyat_check_ignore",
     "gyat_ls_files",
     "gyat_cat_file",
     "gyat_commit_tree",

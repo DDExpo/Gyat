@@ -91,6 +91,16 @@ def arparser_settings():
         "path", help="The empty directory to checkout on."
     )
 
+    argsp_check_ignore = argsubparsers.add_parser(
+        "check-ignore", help="Check path(s) against ignore rules.")
+    argsp_check_ignore.add_argument(
+        "path", nargs="+", help="Paths to check"
+    )
+
+    argsp_status = argsubparsers.add_parser(
+        "status",  help="Show the working tree status."
+    )
+
     argsp_log = argsubparsers.add_parser(
         "log", help="Display history of a given commit.")
     argsp_log.add_argument(
