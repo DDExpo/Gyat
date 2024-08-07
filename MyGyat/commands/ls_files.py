@@ -16,11 +16,11 @@ def gyat_ls_files(base_dir: Path, verbose: bool):
             f" {len(staging_data)} entries.")
 
     for e in staging_data:
-        print(e[12])
+        print(e.name)
         if verbose:
-            print(f"  {{0b1000: 'regular file', 0b1010: 'symlink', 0b1110: 'git link'}[e[4]]} with perms: {e[5]:o}")
-            print(f"  on blob: {e[9]}, file size: {e[8]}")
-            print(f"  created: {dt.fromtimestamp(e[0][0])}.{e[0][1]}, modified: {dt.fromtimestamp(e[1][0])}.{e[1][1]}")
-            print(f"  device: {e[2]}, inode: {e[3]}")
-            print(f"  user: {pwd.getpwuid(e[6]).pw_name} ({e[6]})  group: {grp.getgrgid(e[7]).gr_name} ({e[7]})")
-            print(f"  flags: stage={e[11]} assume_valid={e[10]}")
+            print(f"{0b1000: 'regular file', 0b1010: 'symlink', 0b1110: 'git link' [e.mode_type] with perms: e.mode_perms:o}")
+            print(f"on blob: {e.sha}, file size: {e.fsize}")
+            print(f"created: {dt.fromtimestamp(e.ctime[0])}.{e.ctime[1]}, modified: {dt.fromtimestamp(e.mtime[0])}.{e.mtime[1]}")
+            print(f"device: {e.dev}, inode: {e.ino}")
+            print(f"user: {pwd.getpwuid(e.uid).pw_name} ({e[6]})  group: {grp.getgrgid(e.gid).gr_name} ({e.gid})")
+            print(f"flags: stage={e.flag_stage} assume_valid={e.flag_assume_valid}")

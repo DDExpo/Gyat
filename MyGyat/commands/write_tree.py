@@ -54,6 +54,4 @@ def gyat_write_tree(
     if write_tree:
         create_gyat_object(base_dir, sha_tree, content)
 
-    print(sha_tree)
-
     return sha_tree

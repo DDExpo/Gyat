@@ -2,6 +2,7 @@ import time
 from hashlib import sha1
 from pathlib import Path
 
+from utils import gitconfig_read
 from utils_utils import create_gyat_object
 
 
@@ -9,10 +10,12 @@ def gyat_commit_tree(
         parent_repo: Path, sha_tree: str, parent_sha: str,
         message: str, write_com: bool = True) -> str:
 
+    config = gitconfig_read()
+
     commit = (
-        f"tree {sha_tree}\nauthor {'user'} <{'email'}>"
+        f"tree {sha_tree}\nauthor {config['user']} <{config['email']}>"
         f"{int(time.time())} {time.strftime('%z')}"
-        f"\ncommitter {'user'} <{'email'}>"
+        f"\ncommitter {config['user']} <{config['email']}>"
         f"{int(time.time())} {time.strftime('%z')}"
     )
 

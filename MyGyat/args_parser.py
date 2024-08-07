@@ -101,6 +101,31 @@ def arparser_settings():
         "status",  help="Show the working tree status."
     )
 
+    argsp_rm = argsubparsers.add_parser(
+        "rm", help="Remove files from the working tree and the index.")
+    argsp_rm.add_argument(
+        "path", nargs="+", help="Files to remove"
+    )
+
+    argsp_add = argsubparsers.add_parser(
+        "add", help="Add files contents to the index.")
+    argsp_add.add_argument(
+        "path", nargs="+", help="Files to add"
+    )
+
+    argsp_comm = argsubparsers.add_parser(
+        "commit", help="Record changes to the repository.")
+    argsp_comm.add_argument(
+        "-m", metavar="message", dest="message",
+        help="Message to associate with this commit."
+    )
+
+    argsp_clone = argsubparsers.add_parser(
+        "clone", help="Clone remote repository to current dir, by url.")
+    argsp_clone.add_argument(
+        "url", help="Url link to github rep."
+    )
+
     argsp_log = argsubparsers.add_parser(
         "log", help="Display history of a given commit.")
     argsp_log.add_argument(

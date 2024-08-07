@@ -5,8 +5,11 @@
 
 import os
 import zlib
+from hashlib import sha1
+from collections import defaultdict
 from pathlib import Path
 
+from gyat_index_entry_class import GyatIndexEntry
 from gyat_exceptions import IsNotGyatDirError
 from const import GYAT_OBJECTS
 
@@ -107,3 +110,45 @@ def parse_gyatignore(gitignore_path: Path):
                 line = line[1:]
             patterns.append(line)
     return patterns
+
+
+def tree_from_index(base_dir: Path, index_entries: GyatIndexEntry) -> str:
+
+    contents = defaultdict(list)
+
+    for entry in index_entries:
+
+        dirname = os.path.dirname(entry.name)
+        key = dirname
+        while key != "":
+            contents[key] = list()
+            key = os.path.dirname(key)
+
+        contents[dirname].append(entry)
+
+    sorted_paths = sorted(contents.keys(), key=len, reverse=True)
+
+    for path in sorted_paths:
+
+        tree = []
+
+        for entry in contents[path]:
+            if isinstance(entry, GyatIndexEntry):
+
+                leaf_mode = (f"{entry.mode_type:02o}"
+                             f"{entry.mode_perms:04o}").encode("ascii")
+                leaf = (leaf_mode, os.path.basename(entry.name), entry.sha)
+            else:
+                leaf = (b"040000", entry[0], entry[1])
+
+            tree.append(leaf)
+
+        data = b"".join(tree)
+        header = f"tree {len(data)}\x00".encode("utf-8")
+        sha = sha1(header+data).hexdigest()
+
+        parent = os.path.dirname(path)
+        base = os.path.basename(path)
+        contents[parent].append((base, sha))
+
+    return sha

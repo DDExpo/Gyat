@@ -1,14 +1,16 @@
 import os
 from pathlib import Path
-from commands.check_ignore import gyat_check_ignore
 
+from gyat_index_entry_class import GyatIndexEntry
+from commands.check_ignore import gyat_check_ignore
 from const import GYAT_OBJECTS
-from utils import read_index, find_resolve_tag_ref, create_blob
+from utils import (
+    read_index, find_resolve_tag_ref, create_blob, get_active_branch)
 from utils_utils import deserialize_gyat_object
 
 
 def gyat_status(base_dir: Path):
-    index_content = read_index(base_dir)
+    index_content, _ = read_index(base_dir)
 
     status_branch(base_dir)
     status_head_index(base_dir, index_content)
@@ -18,12 +20,7 @@ def gyat_status(base_dir: Path):
 
 def status_branch(base_dir: Path):
 
-    branch = None
-
-    with open((base_dir / ".git/HEAD"), "r") as f:
-        head = f.read()
-        if head.startswith("ref: refs/heads/"):
-            branch = head[16:-1]
+    branch = get_active_branch(base_dir)
 
     if branch:
         print(f"On branch {branch}.")
@@ -31,24 +28,24 @@ def status_branch(base_dir: Path):
         print(f"HEAD detached at {base_dir / '.git/HEAD'}")
 
 
-def status_head_index(base_dir: Path, index_content):
+def status_head_index(base_dir: Path, index_content: GyatIndexEntry):
     print("Changes to be committed:")
 
     head = tree_to_dict(base_dir, "HEAD")
 
-    for entry in index_content.entries:
-        if entry[12] in head:
-            if head[entry[12]] != entry[9]:
-                print(f"modified: {entry[12]}")
-            del head[entry[12]]
+    for entry in index_content:
+        if entry.name in head:
+            if head[entry.name] != entry.sha:
+                print(f"modified: {entry.name}")
+            del head[entry.name]
         else:
-            print(f"added: {entry[12]}")
+            print(f"added: {entry.name}")
 
     for entry in head.keys():
         print(f"deleted: {entry}")
 
 
-def status_index_worktree(base_dir: Path, index_content):
+def status_index_worktree(base_dir: Path, index_content: GyatIndexEntry):
     print("Changes not staged for commit:")
 
     gitdir_prefix = ".git" + os.path.sep
@@ -64,29 +61,27 @@ def status_index_worktree(base_dir: Path, index_content):
             all_files[rel_path] = 0
 
     for entry in index_content.entries:
-        full_path = base_dir / entry[12]
+        full_path = base_dir / entry.name
 
         if not os.path.exists(full_path):
-            print(f"deleted: {entry[12]}")
+            print(f"deleted: {entry.name}")
         else:
             stat = os.stat(full_path)
 
-            ctime_ns = entry[0][0] * 10**9 + entry[0][1]
-            mtime_ns = entry[1][0] * 10**9 + entry[1][1]
+            ctime_ns = entry.ctime[0] * 10**9 + entry.ctime[1]
+            mtime_ns = entry.mtime[0] * 10**9 + entry.mtime[1]
             if ((stat.st_ctime_ns != ctime_ns) or
                (stat.st_mtime_ns != mtime_ns)):
-                # @FIXME This *will* crash on symlinks to dir.
                 if os.islink(full_path):
                     pass
                 new_sha = create_blob(base_dir, full_path, False)
                 if not entry.sha == new_sha:
-                    print(f"modified: {entry[12]}")
+                    print(f"modified: {entry.name}")
 
-        if entry[12] in all_files:
-            all_files.pop(entry[12])
+        if entry.name in all_files:
+            all_files.pop(entry.name)
 
-    print()
-    print("Untracked files:")
+    print("\nUntracked files:")
 
     for f in all_files.keys():
         if not gyat_check_ignore(f, base_dir):

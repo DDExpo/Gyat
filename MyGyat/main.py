@@ -5,9 +5,9 @@ from utils import valid_tag_name
 from utils_utils import get_all_files_name
 from cmd_with_do_nothing import CmdWithDoNothnglLogic
 from abstr_command import (
-    cmd_add, cmd_cat_file, cmd_check_ignore, cmd_checkout, cmd_commit,
-    cmd_commit_tree, cmd_hash_object, cmd_init, cmd_ls_files, cmd_show_ref,
-    cmd_ls_tree, cmd_rev_parse, cmd_rm, cmd_show_ref, cmd_status, cmd_tag,
+    cmd_add, cmd_cat_file, cmd_check_ignore, cmd_commit, cmd_clone,
+    cmd_commit_tree, cmd_hash_object, cmd_init, cmd_ls_files,
+    cmd_ls_tree, cmd_rm, cmd_show_ref, cmd_status, cmd_tag,
     cmd_write_tree
 )
 
@@ -103,7 +103,7 @@ class GyatConsole(CmdWithDoNothnglLogic):
         args = self._parse_args("ls_files", args)
         if args:
             if self._pre_command_execution_validation():
-                cmd_commit_tree(self.base_dir, args.v)
+                cmd_ls_files(self.base_dir, args.v)
 
     def do_check_ignore(self, args):
         '''
@@ -115,24 +115,33 @@ class GyatConsole(CmdWithDoNothnglLogic):
             if self._pre_command_execution_validation():
                 cmd_check_ignore(args.path, self.base_dir)
 
+    def do_rm(self, args):
+        '''Remove files from the working tree and the index.'''
+        args = self._parse_args("rm", args)
+        if args:
+            if self._pre_command_execution_validation():
+                cmd_rm(args.path, self.base_dir)
+
     def do_add(self, args):
         '''Add file contents to the index'''
-        print(f"Adding file {args}")
+        args = self._parse_args("add", args)
+        if args:
+            if self._pre_command_execution_validation():
+                cmd_add(args.path, self.base_dir)
 
-    def do_yapping(self, args):
+    def do_commit(self, args):
         '''Record changes to the repository'''
-        print(f"[main (root-commit) abcd123] {args}")
+        args = self._parse_args("commit", args)
+        if args:
+            if self._pre_command_execution_validation():
+                cmd_commit(args.message, self.base_dir)
 
-    def do_exit(self, args):
-        '''Exit the console'''
-        return True
-
-    def do_quit(self, args):
-        '''Exit the console'''
-        return True
-
-    def default(self, line):
-        print(f'Unknown command: {line}')
+    def do_clone(self, args):
+        '''Clone remote repository to current dir, by url'''
+        args = self._parse_args("clone", args)
+        if args:
+            if self._pre_command_execution_validation():
+                cmd_clone(self.base_dir, args.url)
 
 
 if __name__ == "__main__":

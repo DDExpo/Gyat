@@ -1,3 +1,4 @@
+import configparser
 import re
 import os
 from math import ceil
@@ -5,6 +6,7 @@ from hashlib import sha1
 from pathlib import Path
 from functools import wraps
 
+from gyat_index_entry_class import GyatIndexEntry
 from commands.cat_file import gyat_cat_file
 from const import INVALID_CHARS_TAG, GYAT_REFS
 from gyat_exceptions import IsNotSameTypeError
@@ -104,7 +106,7 @@ def find_resolve_tag_ref(paren_repo: Path, ref_tag: str) -> str:
 
 def gyatignore_read(base_dir: Path):
 
-    content_index = read_index(base_dir)
+    content_index, _ = read_index(base_dir)
     paths_index_rules = {}
     path_exclude_rules = []
 
@@ -136,30 +138,7 @@ def gyatignore_read(base_dir: Path):
     return (paths_index_rules, path_exclude_rules)
 
 
-def read_index(base_dir: Path) -> tuple[list[tuple], int]:
-    '''Read index. Content of the return
-        entries[0][0] = (ctime_s, ctime_ns),
-        entries[0][1] = (mtime_s, mtime_ns),
-        entries[0][2] = dev,
-        entries[0][3] = ino,
-        entries[0][4] = mode_type,
-        entries[0][5] = mode_perms,
-        entries[0][6] = uid,
-        entries[0][7] = gid,
-        entries[0][8] = fsize,
-        entries[0][9] = sha,
-        entries[0][10] = flag_assume_valid,
-        entries[0][11] = flag_stage,
-        entries[0][12] = name,
-
-
-        if version 3 and higher
-            entries[0][13] = bit_reserved
-            entries[0][14] = skip_worktree
-            entries[0][15] = intent_to_add_flag
-        else they value is -1
-        And version as integer
-    '''
+def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
 
     with open(base_dir / ".git/index", "rb") as f:
 
@@ -248,14 +227,92 @@ def read_index(base_dir: Path) -> tuple[list[tuple], int]:
 
             name = raw_name.decode("utf8")
 
-            if version != 4:
+            if version < 4:
                 idx = 8 * ceil(idx / 8)
 
-            entries.append((
-                (ctime_s, ctime_ns), (mtime_s,  mtime_ns),
-                dev, ino, mode_type, mode_perms, uid, gid,
-                fsize, sha, flag_assume_valid, flag_stage, name,
-                bit_reserved, skip_worktree, intent_to_add_flag,
-            ))
+            entries.append(
+                GyatIndexEntry(
+                    ctime=(ctime_s, ctime_ns), mtime=(mtime_s,  mtime_ns),
+                    dev=dev, ino=ino, mode_type=mode_type,
+                    mode_perms=mode_perms, uid=uid, gid=gid,
+                    fsize=fsize, sha=sha, flag_assume_valid=flag_assume_valid,
+                    flag_stage=flag_stage, name=name,
+                    bit_reserved=bit_reserved, skip_worktree=skip_worktree,
+                    intent_to_add_flag=intent_to_add_flag)
+                )
 
         return (entries, version)
+
+
+def write_index(base_dir: Path, index: list[GyatIndexEntry], version: int):
+
+    with open(base_dir / ".git/index", "wb") as f:
+
+        f.write(b"DIRC")
+        f.write(version.to_bytes(4, "big"))
+        f.write(len(index).to_bytes(4, "big"))
+
+        idx = 0
+        for e in index:
+            f.write(e.ctime[0].to_bytes(4, "big"))
+            f.write(e.ctime[1].to_bytes(4, "big"))
+            f.write(e.mtime[0].to_bytes(4, "big"))
+            f.write(e.mtime[1].to_bytes(4, "big"))
+            f.write(e.dev.to_bytes(4, "big"))
+            f.write(e.ino.to_bytes(4, "big"))
+
+            mode = (e.mode_type << 12) | e.mode_perms
+            f.write(mode.to_bytes(4, "big"))
+
+            f.write(e.uid.to_bytes(4, "big"))
+            f.write(e.gid.to_bytes(4, "big"))
+
+            f.write(e.fsize.to_bytes(4, "big"))
+            f.write(int(e.sha, 16).to_bytes(20, "big"))
+
+            flag_assume_valid = 0x1 << 15 if e.flag_assume_valid else 0
+
+            name_bytes = e.name.encode("utf8")
+            bytes_len = len(name_bytes)
+            if bytes_len >= 0xFFF:
+                name_length = 0xFFF
+            else:
+                name_length = bytes_len
+
+            f.write(
+                (flag_assume_valid | e.flag_stage |
+                 name_length).to_bytes(2, "big"))
+            f.write(name_bytes)
+            f.write((0).to_bytes(1, "big"))
+
+            idx += 62 + len(name_bytes) + 1
+
+            if idx % 8 != 0 and version < 4:
+                pad = 8 - (idx % 8)
+                f.write((0).to_bytes(pad, "big"))
+                idx += pad
+
+
+def gitconfig_read():
+    xdg_config_home = (os.environ["XDG_CONFIG_HOME"]
+                       if "XDG_CONFIG_HOME" in os.environ
+                       else "~/.config")
+    configfiles = [
+        os.path.expanduser(os.path.join(xdg_config_home, "git/config")),
+        os.path.expanduser("~/.gitconfig")
+    ]
+
+    config = configparser.ConfigParser()
+    config.read(configfiles)
+    return config
+
+
+def get_active_branch(base_dir: Path):
+
+    with open(base_dir / ".sgit/HEAD", "r") as f:
+        head = f.read()
+
+        if head.startswith("ref: refs/heads/"):
+            return head[16:-1]
+        else:
+            return False

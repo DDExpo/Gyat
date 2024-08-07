@@ -141,3 +141,14 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
             print('File name coudnt be empty')
         else:
             open(file=args, mode='w', encoding='utf-8')
+
+    def do_exit(self, args):
+        '''Exit the console'''
+        return True
+
+    def do_quit(self, args):
+        '''Exit the console'''
+        return True
+
+    def default(self, line):
+        print(f'Unknown command: {line}')
