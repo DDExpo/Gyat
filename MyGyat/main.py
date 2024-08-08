@@ -137,11 +137,10 @@ class GyatConsole(CmdWithDoNothnglLogic):
                 cmd_commit(args.message, self.base_dir)
 
     def do_clone(self, args):
-        '''Clone remote repository to current dir, by url'''
+        '''Clone remote repository to c urrent dir, by url'''
         args = self._parse_args("clone", args)
         if args:
-            if self._pre_command_execution_validation():
-                cmd_clone(self.base_dir, args.url)
+            cmd_clone(args.url, args.name)
 
 
 if __name__ == "__main__":

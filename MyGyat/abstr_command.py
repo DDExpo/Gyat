@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from const import GYAT_REFS
@@ -6,19 +7,17 @@ from utils_utils import tree_from_index
 from commands import (
     gyat_cat_file, gyat_commit_tree, gyat_hash_object, gyat_ls_tree,
     gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag, gyat_ls_files,
-    gyat_check_ignore, gyat_status, gyat_rm, gyat_add)
+    gyat_check_ignore, gyat_status, gyat_rm, gyat_add, gyat_clone_rep)
 
 
 def cmd_init(cur_directory: Path) -> None:
 
-    flag = False
+    flag = True
     if (cur_directory / ".git").exists():
         print(
             "Directory already exist, still initialize gyat in this dir? (Y|n)"
         )
-        if input().strip() == "Y":
-            flag = True
-        else:
+        if not input().strip() == "Y":
             return
 
     gyat_init(cur_directory, force_create=flag)
@@ -96,5 +95,17 @@ def cmd_commit(message: str, base_dir: Path) -> None:
             fd.write("\n")
 
 
-def cmd_clone(base_dir: Path, url: str) -> None:
-    pass
+def cmd_clone(url: str, dir: str) -> None:
+
+    cur_dir = Path(os.getcwd())
+    if dir:
+        cur_dir = cur_dir / dir
+        if (cur_dir / dir).exists():
+            print("Directory already exist,"
+                  " still clone repo in this dir? (Y|n)")
+            if not input().strip() == "Y":
+                return
+
+        os.makedirs(name=cur_dir, exist_ok=True)
+    gyat_init(cur_dir, force_create=True)
+    gyat_clone_rep(cur_dir, url)

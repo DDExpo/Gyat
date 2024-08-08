@@ -123,13 +123,10 @@ def arparser_settings():
     argsp_clone = argsubparsers.add_parser(
         "clone", help="Clone remote repository to current dir, by url.")
     argsp_clone.add_argument(
-        "url", help="Url link to github rep."
-    )
-
-    argsp_log = argsubparsers.add_parser(
-        "log", help="Display history of a given commit.")
-    argsp_log.add_argument(
-        "commit", nargs="?", help="Commit to start at."
+        "url", help="Url link to github rep.")
+    argsp_clone.add_argument(
+        "name", nargs="?",
+        help="Name of the directory where it will be created."
     )
 
     return arg_parser
