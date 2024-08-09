@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from MyGyat.utils_utils import resolve_refs
-from MyGyat.const import GYAT_REFS
+from utils_utils import resolve_refs
+from const import GYAT_REFS
 
 
 def gyat_show_ref(base_dir: Path, tag: bool = False):

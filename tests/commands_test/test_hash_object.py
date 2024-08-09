@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from MyGyat.utils import create_blob
-# from commands.write_tree import gyat_write_tree
-# from commands.commit_tree import gyat_commit_tree
+from utils import create_blob
+from commands.write_tree import gyat_write_tree
+from commands.commit_tree import gyat_commit_tree
 
 
 # TODO implement validation for tree and commit

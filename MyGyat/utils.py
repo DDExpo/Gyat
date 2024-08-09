@@ -6,11 +6,11 @@ from hashlib import sha1
 from pathlib import Path
 from functools import wraps
 
-from gyat_index_entry_class import GyatIndexEntry
-from commands.cat_file import gyat_cat_file
-from const import INVALID_CHARS_TAG, GYAT_REFS
-from gyat_exceptions import IsNotSameTypeError
-from utils_utils import (
+from MyGyat.gyat_index_entry_class import GyatIndexEntry
+from MyGyat.commands.cat_file import gyat_cat_file
+from MyGyat.const import INVALID_CHARS_TAG, GYAT_REFS
+from MyGyat.gyat_exceptions import IsNotSameTypeError
+from MyGyat.utils_utils import (
     create_gyat_object, deserialize_gyat_object, parse_gyatignore)
 
 

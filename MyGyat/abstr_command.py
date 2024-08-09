@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
 
-from const import GYAT_REFS
-from utils import read_index, get_active_branch
-from utils_utils import tree_from_index
-from commands import (
+from MyGyat.const import GYAT_REFS
+from MyGyat.utils import (
+    read_index, get_active_branch, catch_common_exceptions_with_args)
+from MyGyat.utils_utils import tree_from_index
+from MyGyat.commands import (
     gyat_cat_file, gyat_commit_tree, gyat_hash_object, gyat_ls_tree,
     gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag, gyat_ls_files,
     gyat_check_ignore, gyat_status, gyat_rm, gyat_add, gyat_clone_rep)
@@ -43,6 +44,7 @@ def cmd_hash_object(obj_path: Path, base_dir: Path,
     gyat_hash_object(obj_path, base_dir, obj_type, w_obj)
 
 
+@catch_common_exceptions_with_args
 def cmd_cat_file(sha: str, base_dir: Path) -> None:
     gyat_cat_file(sha, base_dir)
 

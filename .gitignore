@@ -5,3 +5,4 @@ main.build
 main.dist
 main.onefile-build
 gyat_console.py
+.pytest_cache

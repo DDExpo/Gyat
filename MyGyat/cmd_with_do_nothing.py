@@ -4,12 +4,12 @@ from pathlib import Path
 from pprint import pprint
 from argparse import ArgumentError, Namespace, _SubParsersAction
 
-from const import GYAT_COMMANDS, GYAT_REFS
-from utils import is_gyat_object, find_resolve_tag_ref
-from utils_utils import find_repo_gyat, get_all_files_name
-from gyat_exceptions import (
+from MyGyat.const import GYAT_COMMANDS, GYAT_REFS
+from MyGyat.utils import is_gyat_object, find_resolve_tag_ref
+from MyGyat.utils_utils import find_repo_gyat, get_all_files_name
+from MyGyat.gyat_exceptions import (
     NecessaryArgsError, IsNotGyatDirError, IsNotSameTypeError,)
-from args_parser import arparser_settings
+from MyGyat.args_parser import arparser_settings
 
 
 class CmdWithDoNothnglLogic(cmd.Cmd):

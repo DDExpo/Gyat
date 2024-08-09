@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from MyGyat.const import GYAT_REFS
-from MyGyat.utils_utils import deserialize_gyat_object, create_gyat_object
+from const import GYAT_REFS
+from utils_utils import deserialize_gyat_object, create_gyat_object
 
 
 def gyat_tag(

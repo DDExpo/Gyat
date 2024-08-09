@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-from gyat_index_entry_class import GyatIndexEntry
-from utils import write_index, read_index, create_blob
+from MyGyat.gyat_index_entry_class import GyatIndexEntry
+from MyGyat.utils import write_index, read_index, create_blob
 
 
 def gyat_add(paths, base_dir: Path):

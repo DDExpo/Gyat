@@ -1,6 +1,6 @@
 import argparse
 
-from gyat_exceptions import NecessaryArgsError
+from MyGyat.gyat_exceptions import NecessaryArgsError
 
 
 class ArgumentParserNotExit(argparse.ArgumentParser):
