@@ -16,7 +16,7 @@ from MyGyat.const import GYAT_OBJECTS
 
 # Not a good practice to mix things (return|raise) but func isnt too complex
 # so, idk, its not a worst solution at this specific situation
-def find_repo_gyat(cur_path: str = ".") -> Path:
+def find_repo_gyat(cur_path: Path = Path(".")) -> Path:
     abs_path = Path.absolute(cur_path)
 
     while abs_path.name:

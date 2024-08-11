@@ -6,4 +6,3 @@ main.dist
 main.onefile-build
 gyat_console.py
 .pytest_cache
-test_write_tree
