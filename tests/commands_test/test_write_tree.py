@@ -10,7 +10,7 @@ def setup_data():
 
     base_path = Path(__file__).parent.parent.parent
 
-    return [(base_path, "8003ac9f64c9a130d1ede4b3b96b1f219a8a318d")]
+    return [(base_path, "d5162deab68ae9a41d87cc1152f20a7e494536c6")]
 
 
 def test_gyat_write_tree(setup_data):

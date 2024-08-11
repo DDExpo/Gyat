@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from hashlib import sha1
-from pprint import pprint
 
 from MyGyat.const import GYATIGNORE_DIR
 from MyGyat.utils import (
@@ -32,7 +31,6 @@ def gyat_write_tree(
             elif abs_path.is_dir():
                 _, sha = write_tree(path_name / new_path)
                 if sha:
-                    print(sha)
                     tree.append(
                         f"40000 {new_path}\0".encode("utf-8") +
                         bytes.fromhex(sha)
@@ -40,7 +38,6 @@ def gyat_write_tree(
 
         tree_data = b"".join(tree)
         sha1_tree = ""
-        pprint(tree, width=112)
 
         if tree_data:
             sha1_tree = sha1(
