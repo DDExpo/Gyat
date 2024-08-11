@@ -33,7 +33,7 @@ def setup_data():
             "    README.md\n"
             "040000 tree 9d1dcfdaf1a6857c5f83dc27019c7600e1ffaff8    tests\n")
            )),
-         ("tag", "tag_test",
+         ("tag", "772493498dc9f21ddce8b617f1834bf9c844f745",
           (b"tag 150",
            ("object f98d4b00d3303e853bc0089b4138339894555ffd\n"
             "type commit\ntag tag_test\n"

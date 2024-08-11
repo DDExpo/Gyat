@@ -1,29 +1,29 @@
 from pathlib import Path
 
-from utils_utils import deserialize_gyat_object
+import pytest
+
+from MyGyat.commands import gyat_hash_object
 
 
-def gyat_ls_tree(
-     base_dir: Path, sha_tree: str, output_format: str) -> None:
+@pytest.fixture
+def setup_data():
 
-    _, binary_data = deserialize_gyat_object(base_dir, sha_tree)
+    base_path = Path(__file__).parent.parent
 
-    while binary_data:
-        mode_name, binary_data = binary_data.split(b"\x00", maxsplit=1)
-        mode, name = map(bytes.decode, mode_name.split())
-        sha = binary_data[:20].hex()
-        type_object = "blob"
+    return [
+        (base_path, obj_path, obj_type, answer) for
+        obj_path, obj_type, answer in
+        [(Path("data_fixture/test_blob/test_blob_two.txt"), "blob",
+         "0e5866872763e31177b8acc9a2b4ab3a17d8f7c6")]
+    ]
 
-        if mode[:2] == "40":
-            type_object = "tree"
-        elif mode[:2] == "16":
-            type_object = "commit"
 
-        binary_data = binary_data[20:]
+def test_gyat_hash_object(setup_data):
+    '''
+    Verifies `gyat_hash_object' if func return corect hash.
+    '''
 
-        if output_format == "name_only":
-            print(name)
-        elif output_format == "object_only":
-            print(sha)
-        elif output_format == "full_tree":
-            print(f"{mode} {type_object} {sha} {name}")
+    for base_path, obj_path, obj_type, answer in setup_data:
+        assert gyat_hash_object(
+            path_object=obj_path, object_type=obj_type,
+            base_dir=base_path) == answer

@@ -11,7 +11,7 @@ from pathlib import Path
 
 from MyGyat.gyat_index_entry_class import GyatIndexEntry
 from MyGyat.gyat_exceptions import IsNotGyatDirError
-from MyGyat.const import GYAT_OBJECTS, GYAT_REFS
+from MyGyat.const import GYAT_OBJECTS
 
 
 # Not a good practice to mix things (return|raise) but func isnt too complex
@@ -29,27 +29,13 @@ def find_repo_gyat(cur_path: str = ".") -> Path:
     raise IsNotGyatDirError
 
 
-def deserialize_gyat_object(
-        repo_parent: Path, object_sha: str, is_sha: bool = False
-     ) -> tuple[bytes, bytes]:
+def deserialize_gyat_object(repo_parent: Path,
+                            object_sha: str) -> tuple[bytes, bytes]:
 
-    path_obj = (
-        repo_parent / GYAT_OBJECTS / object_sha[:2] / object_sha[2:]
-    )
+    with open(repo_parent / GYAT_OBJECTS /
+              object_sha[:2] / object_sha[2:], mode="rb") as f:
 
-    if not is_sha:
-        path_obj = (repo_parent / GYAT_REFS / "tags" / object_sha)
-
-    with open(path_obj, mode="rb") as f:
-
-        data = f.read()
-
-        if not is_sha:
-            data = data.decode().strip()
-            data = open(repo_parent / GYAT_OBJECTS /
-                        data[:2] / data[2:], "rb").read()
-
-        data_decompressed = zlib.decompress(data)
+        data_decompressed = zlib.decompress(f.read())
         header, content = data_decompressed.split(b"\x00", maxsplit=1)
 
         return header, content

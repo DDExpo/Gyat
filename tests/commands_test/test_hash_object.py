@@ -1,28 +1,29 @@
 from pathlib import Path
 
-from utils import create_blob
-from commands.write_tree import gyat_write_tree
-from commands.commit_tree import gyat_commit_tree
+import pytest
+
+from MyGyat.commands import gyat_hash_object
 
 
-# TODO implement validation for tree and commit
+@pytest.fixture
+def setup_data():
 
-def gyat_hash_object(
-     path_object: Path, base_dir: Path,
-     object_type: str, write_obj: bool) -> None:
+    base_path = Path(__file__).parent.parent
 
-    sha_content = ""
+    return [
+        (base_path, obj_path, obj_type, answer) for
+        obj_path, obj_type, answer in
+        [(Path("data_fixture/test_blob/test_blob_two.txt"), "blob",
+         "e6b6d9bf6a5861ce54eba9ffc35efee018f75d06")]
+    ]
 
-    if object_type == "blob":
-        sha_content = create_blob(base_dir, path_object, write_obj)
 
-    elif object_type == "tree":
-        sha_content = "Not implemented"
+def test_gyat_hash_object(setup_data):
+    '''
+    Verifies `gyat_hash_object' if func return corect hash.
+    '''
 
-    elif object_type == "commit":
-        sha_content = "Not implemented"
-
-    elif object_type == "tag":
-        pass
-
-    print(sha_content, end="")
+    for base_path, obj_path, obj_type, answer in setup_data:
+        assert gyat_hash_object(
+            path_object=obj_path, object_type=obj_type,
+            base_dir=base_path) == answer

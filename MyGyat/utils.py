@@ -39,7 +39,8 @@ def create_blob(base_dir: Path, path_file: Path,
                 create_f: bool = False) -> str:
     '''Create sha of the given object, optionally write blob to a disk'''
 
-    data = open(path_file, "rb").read()
+    data = open(Path(os.getcwd()) / path_file, "rb").read().replace(b'\r\n',
+                                                                    b'\n')
     header = f"blob {len(data)}\x00".encode("utf-8")
     sha = sha1(header+data).hexdigest()
 
@@ -57,6 +58,12 @@ def is_gyat_object(repo: Path, object_sha: str, gyat_obj_type: str) -> bool:
     object_type = header.decode('utf-8').strip().split()[0]
     if not object_type == gyat_obj_type:
         raise IsNotSameTypeError(object_type, gyat_obj_type)
+
+
+def get_gitignore(base_dir: Path) -> list[str]:
+
+    with open(base_dir / ".gitignore", "r") as f:
+        return [line.strip() for line in f.readlines()]
 
 
 def valid_tag_name(name: str):
@@ -298,7 +305,7 @@ def gitconfig_read():
                        if "XDG_CONFIG_HOME" in os.environ
                        else "~/.config")
     configfiles = [
-        os.path.expanduser(os.path.join(xdg_config_home, "git/config")),
+        os.path.expanduser(os.path.join(xdg_config_home, ".git/config")),
         os.path.expanduser("~/.gitconfig")
     ]
 

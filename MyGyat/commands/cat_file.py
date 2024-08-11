@@ -1,7 +1,5 @@
-import re
 from pathlib import Path
 
-from MyGyat.const import HASHRE
 from MyGyat.utils_utils import deserialize_gyat_object
 
 
@@ -12,9 +10,7 @@ def gyat_cat_file(
     Print content of the object to stdout, works as gits with -p arg
     '''
 
-    header, content = deserialize_gyat_object(
-        parent_repo, shas_file, re.match(HASHRE, shas_file)
-    )
+    header, content = deserialize_gyat_object(parent_repo, shas_file)
 
     object_type = header.decode('utf-8').split()[0]
 

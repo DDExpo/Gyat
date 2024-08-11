@@ -28,8 +28,9 @@ def cmd_ls_tree(base_dir: Path, sha: str, output_format: str) -> None:
     gyat_ls_tree(base_dir, sha, output_format)
 
 
-def cmd_write_tree(obj_path: Path, base_dir: Path, wrtite_obj: bool) -> None:
-    sha = gyat_write_tree(base_dir, obj_path, wrtite_obj)
+def cmd_write_tree(
+     base_dir: Path, wrtite_tree: bool, wrtite_objs: bool) -> None:
+    sha = gyat_write_tree(base_dir, wrtite_tree, wrtite_objs)
     print(sha)
 
 

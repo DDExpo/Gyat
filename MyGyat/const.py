@@ -5,7 +5,8 @@ from pathlib import Path
 GYAT_OBJECTS: Path = Path(".git/objects")
 GYAT_OBJECTS_FILES: set[str] = set(("commit", "tag", "blob"))
 GYAT_REFS: Path = Path(".git/refs")
-GYATIGNORE_DIR: set[str] = set((".git", ))
+GYATIGNORE_DIR: set[str] = set(
+    (".git", "*pycache*", "*cpython*"))
 REFS_NAMES: set[str] = set()
 HASHRE = re.compile(r"^[0-9A-Fa-f]{4,40}$")
 

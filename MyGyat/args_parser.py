@@ -28,8 +28,8 @@ def arparser_settings():
     argsp_write_tree.add_argument(
         "-w", action="store_true", help="Write object to disk.")
     argsp_write_tree.add_argument(
-        "path", metavar="directory", nargs="?", default=".",
-        help="Where to start."
+        "-w_blobs", action="store_true",
+        help="Write all blobs to disk."
     )
 
     argsp_commit_tree = argsubparsers.add_parser(

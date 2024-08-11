@@ -36,9 +36,8 @@ class GyatConsole(CmdWithDoNothnglLogic):
         '''Create a new tree object from the current index.'''
         args = self._parse_args("write_tree", args)
         if args:
-            obj_path = Path(args.path).resolve()
-            if self._pre_command_execution_validation(obj_path=obj_path):
-                cmd_write_tree(obj_path, self.base_dir, args.w)
+            if self._pre_command_execution_validation():
+                cmd_write_tree(self.base_dir, args.w, args.w_blobs)
 
     def do_commit_tree(self, args):
         '''
