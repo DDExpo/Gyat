@@ -19,4 +19,4 @@ def test_gyat_write_tree(setup_data):
     '''
 
     for base_path, answer in setup_data:
-        assert gyat_write_tree(base_dir=base_path, w=True) == answer
+        assert gyat_write_tree(base_dir=base_path) == answer
