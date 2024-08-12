@@ -21,6 +21,10 @@ def gyat_add(paths, base_dir: Path):
         clean_paths.append((abspath,  relpath))
 
     index_content, version = read_index(base_dir)
+
+    if index_content is None:
+        return
+
     kept_index_entries = []
 
     for e in index_content:

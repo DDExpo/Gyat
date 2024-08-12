@@ -140,7 +140,7 @@ def gyatignore_read(base_dir: Path):
 
             _, content = gyat_cat_file(parent_repo=base_dir,
                                        shas_file=sha)
-            lines = content.decode("utf8").splitlines()
+            lines = content.decode("utf-8").splitlines()
             paths_index_rules[dir_name] = parse_gyatignore(lines)
 
     return (paths_index_rules, path_exclude_rules)
@@ -156,7 +156,7 @@ def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
         signature = header[:4]
         if not signature == b"DIRC":  # Stands for "DirCache"
             print("Not a valid signature")
-            return None
+            return None, None
 
         version = int.from_bytes(header[4:8], "big")
         count = int.from_bytes(header[8:12], "big")
@@ -208,7 +208,7 @@ def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
             if flag_extended and version == 2:
                 print("Somehow version (current 2) of the format"
                       "doesnt match with flag extended, so we abort")
-                return None
+                return None, None
 
             flag_stage = flags & 0b0011000000000000
             name_length = flags & 0b0000111111111111
@@ -229,11 +229,12 @@ def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
                 raw_name = content[idx:idx+name_length]
                 idx += name_length + 1
             else:
+                print("Notice: Name is 0x{:X} bytes long.".format(name_length))
                 null_idx = content.find(b'\x00', idx + 0xFFF)
                 raw_name = content[idx: null_idx]
                 idx = null_idx + 1
 
-            name = raw_name.decode("utf8")
+            name = raw_name.decode("utf-8", errors="replace")
 
             if version < 4:
                 idx = 8 * ceil(idx / 8)
