@@ -1,5 +1,13 @@
 
 
+class IsNotInGyatDir(Exception):
+    def __init__(self, path):
+        if path:
+            self.message = f"Not a file, or outside the worktree: {path}"
+        else:
+            self.message = None
+
+
 class IsNotGyatDirError(Exception):
 
     def __str__(self) -> str:

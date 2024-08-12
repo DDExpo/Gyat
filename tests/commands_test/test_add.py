@@ -1,4 +1,22 @@
-from MyGyat.commands import (
-    gyat_cat_file, gyat_commit_tree, gyat_hash_object, gyat_ls_tree,
-    gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag, gyat_ls_files,
-    gyat_check_ignore, gyat_status, gyat_rm, gyat_add, gyat_clone_rep)
+from pathlib import Path
+
+import pytest
+
+from MyGyat.commands import gyat_add
+
+
+@pytest.fixture
+def setup_data():
+
+    base_path = Path(__file__).parent.parent.parent
+
+    return [(base_path, answer) for answer in [True]]
+
+
+def test_gyat_cat_file(setup_data):
+    '''
+    Verifies `gyat_add`
+    '''
+
+    for base_path, answer in setup_data:
+        assert gyat_add(["hh/tes.txt"], base_path) == answer

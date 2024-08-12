@@ -38,16 +38,16 @@ def gyat_write_tree(
 
         tree_data = b"".join(tree)
         sha1_tree = ""
+        header = ""
 
         if tree_data:
-            sha1_tree = sha1(
-                f"tree {len(tree_data)}\0".encode("utf-8") + tree_data
-            ).hexdigest()
+            header = f"tree {len(tree_data)}\0".encode("utf-8")
+            sha1_tree = sha1(header[0] + tree_data).hexdigest()
 
-        return tree_data, sha1_tree
+        return header, tree_data, sha1_tree
 
-    content, sha_tree = write_tree(base_dir)
+    header, content, sha_tree = write_tree(base_dir)
     if w:
-        create_gyat_object(base_dir, sha_tree, content)
+        create_gyat_object(base_dir, sha_tree, header+content)
 
     return sha_tree

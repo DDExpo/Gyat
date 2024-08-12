@@ -7,8 +7,8 @@ from functools import wraps
 
 from MyGyat.gyat_index_entry_class import GyatIndexEntry
 from MyGyat.commands.cat_file import gyat_cat_file
-from MyGyat.const import INVALID_CHARS_TAG, GYAT_REFS
-from MyGyat.gyat_exceptions import IsNotSameTypeError
+from MyGyat.const import INVALID_CHARS_TAG, GYAT_REFS, GYAT_OBJECTS
+from MyGyat.gyat_exceptions import IsNotSameTypeError, IsNotInGyatDir
 from MyGyat.utils_utils import (
     create_gyat_object, deserialize_gyat_object, parse_gyatignore)
 
@@ -19,6 +19,8 @@ def catch_common_exceptions_with_args(func):
         def wrapper(*args, **kwargs):
             try:
                 func()
+            except IsNotInGyatDir as e:
+                print(f"error: {e}")
             except PermissionError as e:
                 print(f"error: {e}")
             except TypeError as e:
@@ -132,10 +134,15 @@ def gyatignore_read(base_dir: Path):
     for entry in content_index:
         if entry.name == ".gitignore" or entry.name.endswith("/.gitignore"):
             dir_name = os.path.dirname(entry.name)
+            sha = entry.sha
+            if not (base_dir / GYAT_OBJECTS / sha[:2] / sha[2:]).exists():
+                continue
+
             _, content = gyat_cat_file(parent_repo=base_dir,
-                                       shas_file=entry.sha)
+                                       shas_file=sha)
             lines = content.decode("utf8").splitlines()
             paths_index_rules[dir_name] = parse_gyatignore(lines)
+
     return (paths_index_rules, path_exclude_rules)
 
 
@@ -260,7 +267,7 @@ def write_index(base_dir: Path, index: list[GyatIndexEntry], version: int):
             f.write(e.mtime[0].to_bytes(4, "big"))
             f.write(e.mtime[1].to_bytes(4, "big"))
             f.write(e.dev.to_bytes(4, "big"))
-            f.write(e.ino.to_bytes(4, "big"))
+            f.write(e.ino.to_bytes(8, "big"))
 
             mode = (e.mode_type << 12) | e.mode_perms
             f.write(mode.to_bytes(4, "big"))
@@ -273,7 +280,7 @@ def write_index(base_dir: Path, index: list[GyatIndexEntry], version: int):
 
             flag_assume_valid = 0x1 << 15 if e.flag_assume_valid else 0
 
-            name_bytes = e.name.encode("utf8")
+            name_bytes = e.name.encode("utf-8")
             bytes_len = len(name_bytes)
             if bytes_len >= 0xFFF:
                 name_length = 0xFFF

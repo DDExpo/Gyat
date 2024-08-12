@@ -10,13 +10,14 @@ from collections import defaultdict
 from pathlib import Path
 
 from MyGyat.gyat_index_entry_class import GyatIndexEntry
-from MyGyat.gyat_exceptions import IsNotGyatDirError
+from MyGyat.gyat_exceptions import IsNotGyatDirError, IsNotInGyatDir
 from MyGyat.const import GYAT_OBJECTS
 
 
 # Not a good practice to mix things (return|raise) but func isnt too complex
 # so, idk, its not a worst solution at this specific situation
 def find_repo_gyat(cur_path: Path = Path(".")) -> Path:
+    '''Return path if ok else raise IsNotGyatDirError'''
     abs_path = Path.absolute(cur_path)
 
     while abs_path.name:
@@ -29,6 +30,18 @@ def find_repo_gyat(cur_path: Path = Path(".")) -> Path:
     raise IsNotGyatDirError
 
 
+def is_path_in_gyat_dir(abs_path: Path) -> None:
+
+    while abs_path.name:
+
+        if (abs_path / ".git").exists():
+            return
+
+        abs_path = abs_path.parent
+
+    raise IsNotInGyatDir
+
+
 def deserialize_gyat_object(repo_parent: Path,
                             object_sha: str) -> tuple[bytes, bytes]:
 
@@ -38,7 +51,7 @@ def deserialize_gyat_object(repo_parent: Path,
         data_decompressed = zlib.decompress(f.read())
         header, content = data_decompressed.split(b"\x00", maxsplit=1)
 
-        return header, content
+    return header, content
 
 
 def create_gyat_object(parent_repo: Path, sha: str, data_bytes: bytes) -> None:

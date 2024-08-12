@@ -1,6 +1,9 @@
+import time
 from pathlib import Path
+from hashlib import sha1
 
 from MyGyat.const import GYAT_REFS
+from MyGyat.utils import gitconfig_read
 from MyGyat.utils_utils import deserialize_gyat_object, create_gyat_object
 
 
@@ -16,7 +19,16 @@ def gyat_tag(
         type_obj = deserialize_gyat_object(
             base_dir, obj)[0].decode("utf-8").split()[0]
 
-        data = (f"object: {object}\ntype: {type_obj}\n"
-                f"tag: {tag_name}\ntagger:\n\n{message}").encode("utf-8")
+        config = gitconfig_read()
 
-        create_gyat_object(base_dir, object, data, "tag")
+        data = (
+            f"object {obj}\ntype {type_obj}\ntag {tag_name}\n"
+            f"tagger {config['user']['name']} <{config['user']['email']}> "
+            f"{int(time.time())} {time.strftime('%z')}\n\n{message}\n"
+        ).encode()
+
+        header = f"tag {len(data)}\0".encode()
+
+        sha = sha1(header + data).hexdigest()
+
+        create_gyat_object(base_dir, sha, header+data)

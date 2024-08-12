@@ -3,16 +3,20 @@ from pathlib import Path
 
 from MyGyat.gyat_index_entry_class import GyatIndexEntry
 from MyGyat.utils import write_index, read_index, create_blob
+from MyGyat.utils_utils import is_path_in_gyat_dir
 
 
 def gyat_add(paths, base_dir: Path):
 
     clean_paths = list()
     set_paths = {Path(path).absolute() for path in paths}
+
     for path in paths:
-        abspath = os.path.abspath(path)
-        if not (abspath.startswith(base_dir) and os.path.isfile(abspath)):
-            raise Exception(f"Not a file, or outside the worktree: {path}")
+        abspath = Path(path).absolute()
+        is_path_in_gyat_dir(abspath)
+        if not abspath.is_file():
+            print(f"Not a file: {abspath} !")
+            return
         relpath = os.path.relpath(abspath, base_dir)
         clean_paths.append((abspath,  relpath))
 
@@ -28,7 +32,7 @@ def gyat_add(paths, base_dir: Path):
 
         stat = os.stat(abspath)
 
-        ctime_s = int(stat.st_birthtime)
+        ctime_s = int(stat.st_ctime)
         ctime_ns = stat.st_ctime_ns % 10**9
         mtime_s = int(stat.st_mtime)
         mtime_ns = stat.st_mtime_ns % 10**9
@@ -42,3 +46,4 @@ def gyat_add(paths, base_dir: Path):
                 flag_stage=False, name=relpath))
 
     write_index(base_dir, kept_index_entries, version)
+    return True

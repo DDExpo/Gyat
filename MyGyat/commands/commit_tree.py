@@ -28,12 +28,13 @@ def gyat_commit_tree(
         commit = f"parent {parent_sha}\n" + commit
 
     commit_bytes = commit.encode("utf-8")
-    sha_commit = sha1(commit_bytes).hexdigest()
+    header = f"commit {len(commit_bytes)}\0".encode("utf-8")
+
+    sha_commit = sha1(header+commit_bytes).hexdigest()
     if write_com:
         create_gyat_object(
             parent_repo=parent_repo, sha=sha_commit,
-            data_bytes=(f"commit {len(commit_bytes)}"
-                        f"\x00{commit_bytes}").encode("utf-8")
+            data_bytes=(header+commit_bytes)
         )
 
     print(sha_commit)

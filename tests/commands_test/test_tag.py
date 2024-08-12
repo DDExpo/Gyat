@@ -1,22 +1,33 @@
 from pathlib import Path
 
-from const import GYAT_REFS
-from utils_utils import deserialize_gyat_object, create_gyat_object
+import pytest
+
+from MyGyat.const import GYAT_REFS
+from MyGyat.commands import gyat_tag
 
 
-def gyat_tag(
-        base_dir: Path, tag_name: str,
-        message: str, obj: str, annotated_tag: bool):
+@pytest.fixture
+def setup_data():
 
-    if not annotated_tag:
-        with open(base_dir / GYAT_REFS / "tags" / tag_name,
-                  "w", encoding="utf-8") as f:
-            f.write(obj)
-    else:
-        type_obj = deserialize_gyat_object(
-            base_dir, obj)[0].decode("utf-8").split()[0]
+    base_path = Path(__file__).parent.parent / "data_fixture/tag"
 
-        data = (f"object: {object}\ntype: {type_obj}\n"
-                f"tag: {tag_name}\ntagger:\n\n{message}").encode("utf-8")
+    return [
+        (base_path, name, message, obj, a) for name, message, obj, a in
+        [("test_tag", "", "772493498dc9f21ddce8b617f1834bf9c844f745", False),
+         ("test_tag_anotated", "test",
+          "66d3e4d23128051d46c4af5555dc2fca3122b8b3", True)]
+    ]
 
-        create_gyat_object(base_dir, object, data, "tag")
+
+def test_gyat_tag(setup_data):
+    '''
+    Verifies `gyat_tag` what it create correct tag
+    and corect sha of annotated tag ! cant be tested though as it has dynamic
+    data every second what cant be hardcoded.
+    '''
+
+    for base_path, name, message, obj, a in setup_data:
+        gyat_tag(base_path, name, message, obj, a)
+        if not a:
+            assert (
+                base_path / GYAT_REFS / "tags" / name).exists() is True

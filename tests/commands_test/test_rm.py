@@ -1,34 +1,28 @@
-import os
 from pathlib import Path
 
-from utils import read_index, write_index
+import pytest
+
+from MyGyat.commands import gyat_cat_file
 
 
-def gyat_rm(base_dir: Path, paths):
+@pytest.fixture
+def setup_data():
 
-    index_content, version = read_index(base_dir)
-    abspaths = []
+    base_path = Path(__file__).parent.parent / "data_fixture"
 
-    for path in paths:
-        abspath = os.path.abspath(path)
-        if abspath.startswith(base_dir):
-            abspaths.append(abspath)
-        else:
-            print(f"Paths outside of worktree wouldnt be removed: {path}")
+    # Data paths is hardcoded and data is precreated i think its not the
+    # best way to do testing, but data is small, so i think its okay
+    return [
+        (base_path / data, sha, answer) for data, sha, answer in
+        []
+        ]
 
-    kept_entries = list()
 
-    for e in index_content:
-        full_path = str(base_dir / e.name)
+def test_gyat_cat_file(setup_data):
+    '''
+    Verifies `gyat_cat_file` processes checks if the function return header and
+    content of the objects[blob, tree, commit, tag] as expected.
+    '''
 
-        if full_path in abspaths:
-            os.unlink(full_path)
-            abspaths.remove(full_path)
-        else:
-            kept_entries.append(e)
-
-    if len(abspaths) > 0:
-        raise Exception(
-            f"Cannot remove paths not in the index: {abspaths}")
-
-    write_index(base_dir, kept_entries, version)
+    for base_path, sha, answer in setup_data:
+        assert gyat_cat_file(parent_repo=base_path, shas_file=sha) == answer
