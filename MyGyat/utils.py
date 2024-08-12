@@ -159,6 +159,11 @@ def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
             return None, None
 
         version = int.from_bytes(header[4:8], "big")
+
+        if not version == 2:
+            print(f"Support only version 2 version: {version}")
+            return None, None
+
         count = int.from_bytes(header[8:12], "big")
 
         entries: list[tuple] = []
@@ -206,8 +211,8 @@ def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
             flag_extended = (flags & 0b0100000000000000) != 0
 
             if flag_extended and version == 2:
-                print("Somehow version (current 2) of the format"
-                      "doesnt match with flag extended, so we abort")
+                print("Somehow version (current 2) of the format "
+                      "doesnt match with value of flag extended, so we abort")
                 return None, None
 
             flag_stage = flags & 0b0011000000000000
@@ -234,7 +239,7 @@ def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
                 raw_name = content[idx: null_idx]
                 idx = null_idx + 1
 
-            name = raw_name.decode("utf-8", errors="replace")
+            name = raw_name.decode("utf8", errors="replace")
 
             if version < 4:
                 idx = 8 * ceil(idx / 8)
@@ -254,6 +259,9 @@ def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
 
 
 def write_index(base_dir: Path, index: list[GyatIndexEntry], version: int):
+    '''DOESNT WORK'''
+    # DOESNT WORK
+    return
 
     with open(base_dir / ".git/index", "wb") as f:
 
@@ -281,7 +289,7 @@ def write_index(base_dir: Path, index: list[GyatIndexEntry], version: int):
 
             flag_assume_valid = 0x1 << 15 if e.flag_assume_valid else 0
 
-            name_bytes = e.name.encode("utf-8")
+            name_bytes = e.name.encode("utf8")
             bytes_len = len(name_bytes)
             if bytes_len >= 0xFFF:
                 name_length = 0xFFF

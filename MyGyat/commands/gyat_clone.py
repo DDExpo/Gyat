@@ -7,25 +7,26 @@ from pathlib import Path
 from MyGyat.utils_utils import create_gyat_object, deserialize_gyat_object
 
 
+# TODO finish this
 def gyat_clone_rep(cur_dir: Path, url: str):
 
     response = requests.get(f"{url}/info/refs?service=git-upload-pack")
-    lines = response.text.split(b"\n")
+    lines = response.text.split("\n")
     refs = {}
 
     for line in lines:
         line = line[4:]
 
-        if line.startswith(b"#"):
+        if line.startswith("#"):
             continue
 
-        line = line.split(b"\0")[0]
-        if line.endswith(b"HEAD"):
+        line = line.split("\0")[0]
+        if line.endswith("HEAD"):
             line = line[4:]
 
-        parts = line.split(b" ")
+        parts = line.split(" ")
         if len(parts) == 2:
-            refs[parts[1].decode()] = parts[0].decode()
+            refs[parts[1]] = parts[0]
 
     for name, sha in refs.items():
         with open(cur_dir / ".git" / name, "w") as f:

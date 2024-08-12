@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from MyGyat.utils import read_index, write_index
+from MyGyat.utils_utils import is_path_in_gyat_dir
 
 
 def gyat_rm(base_dir: Path, paths):
@@ -10,11 +11,8 @@ def gyat_rm(base_dir: Path, paths):
     abspaths = []
 
     for path in paths:
-        abspath = os.path.abspath(path)
-        if abspath.startswith(base_dir):
-            abspaths.append(abspath)
-        else:
-            print(f"Paths outside of worktree wouldnt be removed: {path}")
+        abspath = Path(path).absolute()
+        is_path_in_gyat_dir(abspath)
 
     kept_entries = list()
 
@@ -28,7 +26,7 @@ def gyat_rm(base_dir: Path, paths):
             kept_entries.append(e)
 
     if len(abspaths) > 0:
-        raise Exception(
-            f"Cannot remove paths not in the index: {abspaths}")
+        print(f"Cannot remove paths not in the index: {abspaths}")
+        return
 
     write_index(base_dir, kept_entries, version)

@@ -6,6 +6,7 @@ from MyGyat.utils import write_index, read_index, create_blob
 from MyGyat.utils_utils import is_path_in_gyat_dir
 
 
+# DOESNT WORK PROPERLY Why
 def gyat_add(paths, base_dir: Path):
 
     clean_paths = list()
