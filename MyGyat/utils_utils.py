@@ -48,32 +48,35 @@ def create_gyat_object(parent_repo: Path, sha: str, data_bytes: bytes) -> None:
         f.write(zlib.compress(data_bytes))
 
 
-def resolve_refs(base_dir: Path) -> list[str, Path]:
+def resolve_refs(base_dir: Path, tag: bool = False) -> list[str, Path]:
 
     refs: list[tuple[str, Path]] = []
 
-    def recursia(cur_path: Path = Path("")):
+    def recursia(cur_path: Path = Path("."), start_path: str = ""):
 
         if (base_dir / cur_path).is_file():
             content = open(base_dir / cur_path, "r",
                            encoding="utf8").read().strip("\n")
 
-            # So refs is doubled [ref/ref] so we slice it
-            maybe_path = content.split()[-1][5:]
-            if (base_dir / maybe_path).exists():
-                recursia(Path(maybe_path))
-                return
-
-            refs.append((content, cur_path))
+            maybe_path = content.split()
+            for maybe in maybe_path:
+                if (base_dir / maybe).exists():
+                    recursia(Path(maybe), cur_path)
+                    return
+            refs.append((content, start_path))
             return
-        for next_path in os.listdir(base_dir / cur_path):
-            recursia(cur_path / Path(next_path))
 
-        try:
-            recursia()
-        except FileNotFoundError as e:
-            print(e)
+        for next_path in sorted(os.listdir(base_dir / cur_path)):
+            recursia(cur_path / Path(next_path), cur_path / Path(next_path))
 
+    try:
+        if tag:
+            recursia("refs/tags", "refs/tags")
+        else:
+            recursia("refs", "refs")
+
+    except FileNotFoundError as e:
+        print(e)
     return refs
 
 

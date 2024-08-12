@@ -60,7 +60,7 @@ def status_index_worktree(base_dir: Path, index_content: GyatIndexEntry):
             rel_path = os.path.relpath(full_path, base_dir)
             all_files[rel_path] = 0
 
-    for entry in index_content.entries:
+    for entry in index_content:
         full_path = base_dir / entry.name
 
         if not os.path.exists(full_path):
@@ -98,12 +98,10 @@ def tree_to_dict(base_dir: Path, ref: str):
 
         leaf_sha = trees.pop()
         _, content = deserialize_gyat_object(base_dir, leaf_sha)
+        obj_type, content = content.split(b" ", maxsplit=1)
+        sha = content[:40]
 
-        mode_name, content = content.split(b"\x00", maxsplit=1)
-        mode, _ = map(bytes.decode, mode_name.split())
-        sha = content[:20].hex()
-
-        if mode.startswith("04") or mode.startswith("40"):
+        if obj_type == "tree":
             trees.append(sha)
         else:
             result[base_dir / GYAT_OBJECTS /

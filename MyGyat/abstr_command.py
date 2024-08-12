@@ -50,8 +50,8 @@ def cmd_cat_file(sha: str, base_dir: Path) -> None:
     gyat_cat_file(sha, base_dir)
 
 
-def cmd_show_ref(base_dir) -> None:
-    gyat_show_ref(base_dir)
+def cmd_show_ref(base_dir: Path, tag: bool) -> None:
+    gyat_show_ref(base_dir, tag)
 
 
 def cmd_tag(base_dir, tag_name, message, obj, annotated_tag) -> None:

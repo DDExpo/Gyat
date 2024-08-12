@@ -56,7 +56,7 @@ class GyatConsole(CmdWithDoNothnglLogic):
         args = self._parse_args("hash_object", args)
         if args:
             obj_path = Path(args.path).resolve()
-            if self._pre_command_execution_validation(obj_path=obj_path):
+            if self._pre_command_execution_validation():
                 if args.t in GYAT_OBJECTS_FILES and not obj_path.is_file():
                     print("Path should be to a file!")
                 else:
@@ -70,9 +70,10 @@ class GyatConsole(CmdWithDoNothnglLogic):
                 cmd_cat_file(args.sha, self.base_dir)
 
     def do_show_ref(self, args):
-        '''List all referencies'''
+        '''List all referencies and tags'''
+        args = self._parse_args("show_ref", args)
         if self._pre_command_execution_validation():
-            cmd_show_ref(self.base_dir)
+            cmd_show_ref(self.base_dir, args.t)
 
     def do_tag(self, args):
         '''Create tags'''

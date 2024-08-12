@@ -64,6 +64,12 @@ def arparser_settings():
         "sha", help="Objets hash or ref/tag."
     )
 
+    argsp_show_ref = argsubparsers.add_parser(
+        "show_ref", help="Displays all ref and tags")
+    argsp_show_ref.add_argument(
+        "-tag", action="store_true", help="list only tags"
+    )
+
     argsp_tag = argsubparsers.add_parser(
         "tag", help="list all tags if ar")
     argsp_tag.add_argument(

@@ -1,12 +1,40 @@
 from pathlib import Path
 
-from utils_utils import resolve_refs
-from const import GYAT_REFS
+import pytest
+
+from MyGyat.commands import gyat_show_ref
 
 
-def gyat_show_ref(base_dir: Path, tag: bool = False):
+@pytest.fixture
+def setup_data():
 
-    base_dir = base_dir / GYAT_REFS / "tags" if tag else base_dir / GYAT_REFS
+    base_path = Path(__file__).parent.parent / "data_fixture/tag"
 
-    for ref_content, ref_path in resolve_refs():
-        print(f"{ref_content} {ref_path}")
+    return [
+        (base_path, is_tag, answer) for is_tag, answer in
+        [
+            (False,
+             "387fb0c3120e2a3d9ca097a3e472d4b41bbb4a10 refs\\heads\\main\n"
+             "387fb0c3120e2a3d9ca097a3e472d4b41bbb4a10 "
+             "refs\\remotes\\origin\\HEAD\n"
+             "387fb0c3120e2a3d9ca097a3e472d4b41bbb4a10 "
+             "refs\\remotes\\origin\\main\n"
+             "387fb0c3120e2a3d9ca097a3e472d4b41bbb4a10 "
+             "refs\\tags\\test_show_ref\n"
+             ),
+            (True,
+             "387fb0c3120e2a3d9ca097a3e472d4b41bbb4a10 "
+             "refs\\tags\\test_show_ref\n")
+        ]
+    ]
+
+
+def test_gyat_show_ref(setup_data, capsys):
+    '''
+    Verifies `gyat_show_ref` if func displays correct references available
+    in a local repository along with the associated commit IDs
+    '''
+
+    for base_path, is_tag, answer in setup_data:
+        gyat_show_ref(base_path, is_tag)
+        assert capsys.readouterr().out == answer

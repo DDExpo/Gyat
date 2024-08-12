@@ -1,5 +1,4 @@
 import configparser
-import re
 import os
 from math import ceil
 from hashlib import sha1
@@ -91,24 +90,19 @@ def find_resolve_tag_ref(paren_repo: Path, ref_tag: str) -> str:
     while dirs:
 
         cur_path = dirs.pop()
+        abs_path = paren_repo / cur_path
 
-        if cur_path.name == ref_tag:
-            while True:
-                content = open(paren_repo / ".git/" / cur_path,
-                               "r", encoding="utf-8").read()
-                refs = re.search(r'^refs: (\w+)', content, re.MULTILINE)
-                if refs:
-                    cur_path = refs.group(1)
-                    continue
-                object_match = re.search(
-                    r'^commit (\w+)', content, re.MULTILINE)
+        if abs_path.is_file():
+            maybe_ref = open(abs_path, "r").read()
+            maybe_path = maybe_ref.split()[-1]
+            if (paren_repo / ".git" / maybe_path).exists():
+                dirs.append(Path(".git") / maybe_path)
+                continue
+            else:
+                return maybe_path
 
-                if object_match:
-                    return object_match.group(1)
-                return content
-
-        for next_path in os.listdir(cur_path):
-            dirs.append(cur_path / next_path)
+        for next_path in sorted(os.listdir(abs_path)):
+            dirs.append(next_path)
 
 
 def gyatignore_read(base_dir: Path):
@@ -136,10 +130,10 @@ def gyatignore_read(base_dir: Path):
 
     # .gitignore files in the index
     for entry in content_index:
-        if entry[12] == ".gitignore" or entry[12].endswith("/.gitignore"):
-            dir_name = os.path.dirname(entry[12])
+        if entry.name == ".gitignore" or entry.name.endswith("/.gitignore"):
+            dir_name = os.path.dirname(entry.name)
             _, content = gyat_cat_file(parent_repo=base_dir,
-                                       shas_file=entry[9])
+                                       shas_file=entry.sha)
             lines = content.decode("utf8").splitlines()
             paths_index_rules[dir_name] = parse_gyatignore(lines)
     return (paths_index_rules, path_exclude_rules)
@@ -316,7 +310,7 @@ def gitconfig_read():
 
 def get_active_branch(base_dir: Path):
 
-    with open(base_dir / ".sgit/HEAD", "r") as f:
+    with open(base_dir / ".git/HEAD", "r") as f:
         head = f.read()
 
         if head.startswith("ref: refs/heads/"):

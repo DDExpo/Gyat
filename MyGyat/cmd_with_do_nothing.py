@@ -75,7 +75,7 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
             print(e)
 
     def _pre_command_execution_validation(
-         self, sha=None, obj_path: Path = ".", obj_type: str = None) -> bool:
+         self, sha="", obj_type: str = None) -> bool:
         '''
         func to validate data given by user and context, when input
         was parsed but not executed yet
@@ -85,8 +85,6 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
             self.base_dir = find_repo_gyat(Path(os.getcwd()))
             if sha.sha in self.unique_names_ref_tags:
                 sha.sha = find_resolve_tag_ref(self.base_dir, sha.sha)
-            if not obj_path.exists():
-                raise FileNotFoundError
             if obj_type:
                 is_gyat_object(self.base_dir, sha.sha, obj_type)
             return True
