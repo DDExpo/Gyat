@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
-from MyGyat.gyat_index_entry_class import GyatIndexEntry
-from MyGyat.utils import write_index, read_index, create_blob
-from MyGyat.utils_utils import is_path_in_gyat_dir
+from gyat_index_entry_class import GyatIndexEntry
+from utils import write_index, read_index, create_blob
+from utils_utils import is_path_in_gyat_dir
 
 
 def gyat_add(paths, base_dir: Path):

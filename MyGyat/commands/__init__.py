@@ -1,5 +1,4 @@
 from .cat_file import gyat_cat_file
-from .commit_tree import gyat_commit_tree
 from .hash_object import gyat_hash_object
 from .ls_tree import gyat_ls_tree
 from .write_tree import gyat_write_tree
@@ -13,6 +12,7 @@ from .rm import gyat_rm
 from .add import gyat_add
 from .gyat_clone import gyat_clone_rep
 from .gyat_commit_com import gyat_commit
+from .commit_tree import gyat_commit_tree
 
 
 __all__ = [

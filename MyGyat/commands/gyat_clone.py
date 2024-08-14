@@ -8,7 +8,7 @@ from pathlib import Path
 import urllib.request
 
 
-from MyGyat.utils_utils import create_gyat_object, deserialize_gyat_object
+from utils_utils import create_gyat_object, deserialize_gyat_object
 
 
 def gyat_clone_rep(cur_dir: Path, url: str):

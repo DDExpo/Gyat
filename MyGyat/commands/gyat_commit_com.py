@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from MyGyat.const import GYAT_REFS
-from MyGyat.utils import read_index, get_active_branch
-from MyGyat.utils_utils import tree_from_index
-from MyGyat.commands import gyat_commit_tree
+from const import GYAT_REFS
+from utils import read_index, get_active_branch
+from utils_utils import tree_from_index
+from commands.commit_tree import gyat_commit_tree
 
 
 def gyat_commit(base_dir: Path, message: str):

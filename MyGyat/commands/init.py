@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from MyGyat.const import GYAT_OBJECTS
+from const import GYAT_OBJECTS
 
 
 def gyat_init(path_dir: Path, force_create: bool) -> None:

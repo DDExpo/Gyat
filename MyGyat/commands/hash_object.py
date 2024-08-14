@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from MyGyat.utils import create_blob
+from utils import create_blob
 
 
 def gyat_hash_object(

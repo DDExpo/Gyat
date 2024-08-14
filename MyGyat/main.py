@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from MyGyat.const import GYAT_OBJECTS_FILES, GYAT_REFS
-from MyGyat.utils import valid_tag_name
-from MyGyat.utils_utils import get_all_files_name
-from MyGyat.cmd_with_do_nothing import CmdWithDoNothnglLogic
-from MyGyat.abstr_command import (
+from const import GYAT_OBJECTS_FILES, GYAT_REFS
+from utils import valid_tag_name
+from utils_utils import get_all_files_name
+from cmd_with_do_nothing import CmdWithDoNothnglLogic
+from abstr_command import (
     cmd_add, cmd_cat_file, cmd_check_ignore, cmd_commit, cmd_clone,
     cmd_commit_tree, cmd_hash_object, cmd_init, cmd_ls_files,
     cmd_ls_tree, cmd_rm, cmd_show_ref, cmd_status, cmd_tag,

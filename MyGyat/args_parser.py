@@ -39,7 +39,7 @@ def arparser_settings():
     argsp_commit_tree.add_argument(
         "sha", help="Sha of the Tree or ref/tag.")
     argsp_commit_tree.add_argument(
-        "-w", actions="store_true", help=" of commit.")
+        "-w", action="store_true", help=" of commit.")
     argsp_commit_tree.add_argument(
         "-m", type=str, nargs="?", help="Write object to disk.")
     argsp_commit_tree.add_argument(

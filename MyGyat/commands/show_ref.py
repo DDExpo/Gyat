@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from MyGyat.utils_utils import resolve_refs
+from utils_utils import resolve_refs
 
 
 def gyat_show_ref(base_dir: Path, tag: bool = False):

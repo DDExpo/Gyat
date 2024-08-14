@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
 
-from MyGyat.gyat_index_entry_class import GyatIndexEntry
-from MyGyat.commands.check_ignore import gyat_check_ignore
-from MyGyat.const import GYAT_OBJECTS
-from MyGyat.utils import (
+from gyat_index_entry_class import GyatIndexEntry
+from commands.check_ignore import gyat_check_ignore
+from const import GYAT_OBJECTS
+from utils import (
     read_index, find_resolve_tag_ref, create_blob, get_active_branch)
-from MyGyat.utils_utils import deserialize_gyat_object
+from utils_utils import deserialize_gyat_object
 
 
 def gyat_status(base_dir: Path):

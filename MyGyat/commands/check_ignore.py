@@ -1,7 +1,7 @@
 import fnmatch
 from pathlib import Path
 
-from MyGyat.utils import gyatignore_read
+from read_gyatignore import gyatignore_read
 
 
 def gyat_check_ignore(paths, base_dir: Path):

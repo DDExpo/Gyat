@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 from hashlib import sha1
 
-from MyGyat.const import GYATIGNORE_DIR
-from MyGyat.utils import (
+from const import GYATIGNORE_DIR
+from utils import (
     create_blob, create_gyat_object, get_gitignore, read_index)
 
 

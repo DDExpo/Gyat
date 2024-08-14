@@ -3,7 +3,7 @@ import ctypes
 from datetime import datetime as dt
 from pathlib import Path
 
-from MyGyat.utils import read_index
+from utils import read_index
 
 if not os.name == 'nt':
     import grp

@@ -9,9 +9,9 @@ from hashlib import sha1
 from collections import defaultdict
 from pathlib import Path
 
-from MyGyat.gyat_index_entry_class import GyatIndexEntry
-from MyGyat.gyat_exceptions import IsNotGyatDirError, IsNotInGyatDir
-from MyGyat.const import GYAT_OBJECTS
+from gyat_index_entry_class import GyatIndexEntry
+from gyat_exceptions import IsNotGyatDirError, IsNotInGyatDir
+from const import GYAT_OBJECTS
 
 
 # Not a good practice to mix things (return|raise) but func isnt too complex

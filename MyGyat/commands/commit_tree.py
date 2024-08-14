@@ -2,8 +2,8 @@ import time
 from hashlib import sha1
 from pathlib import Path
 
-from MyGyat.utils import gitconfig_read
-from MyGyat.utils_utils import create_gyat_object
+from utils import gitconfig_read
+from utils_utils import create_gyat_object
 
 
 def gyat_commit_tree(

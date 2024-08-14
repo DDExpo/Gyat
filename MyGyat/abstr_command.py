@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-from MyGyat.utils import catch_common_exceptions
-from MyGyat.commands import (
+from utils import catch_common_exceptions
+from commands import (
     gyat_cat_file, gyat_commit_tree, gyat_hash_object, gyat_ls_tree,
     gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag, gyat_ls_files,
     gyat_check_ignore, gyat_status, gyat_rm, gyat_add, gyat_clone_rep,

@@ -4,12 +4,12 @@ from pathlib import Path
 from pprint import pprint
 from argparse import ArgumentError, Namespace, _SubParsersAction
 
-from MyGyat.const import GYAT_COMMANDS, GYAT_REFS
-from MyGyat.utils import is_gyat_object, find_resolve_tag_ref
-from MyGyat.utils_utils import find_repo_gyat, get_all_files_name
-from MyGyat.gyat_exceptions import (
+from const import GYAT_COMMANDS, GYAT_REFS
+from utils import is_gyat_object, find_resolve_tag_ref
+from utils_utils import find_repo_gyat, get_all_files_name
+from gyat_exceptions import (
     NecessaryArgsError, IsNotGyatDirError, IsNotSameTypeError,)
-from MyGyat.args_parser import arparser_settings
+from args_parser import arparser_settings
 
 
 class CmdWithDoNothnglLogic(cmd.Cmd):
@@ -23,8 +23,11 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
     arg_parser = arparser_settings()
     base_dir: Path = ""
     # No comment
-    unique_names_ref_tags: set[str] = get_all_files_name(
-        find_repo_gyat() / GYAT_REFS)
+    try:
+        unique_names_ref_tags: set[str] = get_all_files_name(
+            find_repo_gyat() / GYAT_REFS)
+    except IsNotGyatDirError:
+        pass
 
     def precmd(self, line: str) -> str:
         try:
@@ -129,7 +132,7 @@ class CmdWithDoNothnglLogic(cmd.Cmd):
         '''Create directory'''
         os.makedirs(Path(os.getcwd() + '/' + args), exist_ok=True)
 
-    def do_rms(self, args):
+    def do_rm(self, args):
         '''Remove directory/file'''
         os.remove(Path(os.getcwd() + '/' + args))
 

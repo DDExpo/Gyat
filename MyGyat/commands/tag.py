@@ -2,9 +2,9 @@ import time
 from pathlib import Path
 from hashlib import sha1
 
-from MyGyat.const import GYAT_REFS
-from MyGyat.utils import gitconfig_read
-from MyGyat.utils_utils import deserialize_gyat_object, create_gyat_object
+from const import GYAT_REFS
+from utils import gitconfig_read
+from utils_utils import deserialize_gyat_object, create_gyat_object
 
 
 def gyat_tag(

@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-from MyGyat.utils import read_index, write_index
-from MyGyat.utils_utils import is_path_in_gyat_dir
+from utils import read_index, write_index
+from utils_utils import is_path_in_gyat_dir
 
 
 def gyat_rm(base_dir: Path, paths):

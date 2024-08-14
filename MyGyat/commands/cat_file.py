@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from MyGyat.utils_utils import deserialize_gyat_object
+from utils_utils import deserialize_gyat_object
 
 
 def gyat_cat_file(
