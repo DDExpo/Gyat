@@ -13,7 +13,7 @@ def setup_data():
     return [
         (base_path, obj_path, obj_type, answer) for
         obj_path, obj_type, answer in
-        [(Path("data_fixture/test_blob/test_blob_two.txt"), "blob",
+        [(Path("tests/data_fixture/test_blob/test_blob_two.txt"), "blob",
          "e6b6d9bf6a5861ce54eba9ffc35efee018f75d06")]
     ]
 

@@ -21,10 +21,14 @@ def setup_data():
              "refs\\remotes\\origin\\main\n"
              "387fb0c3120e2a3d9ca097a3e472d4b41bbb4a10 "
              "refs\\tags\\test_show_ref\n"
+             "772493498dc9f21ddce8b617f1834bf9c844f745 "
+             "refs\\tags\\test_tag\n"
              ),
             (True,
              "387fb0c3120e2a3d9ca097a3e472d4b41bbb4a10 "
-             "refs\\tags\\test_show_ref\n")
+             "refs\\tags\\test_show_ref\n"
+             "772493498dc9f21ddce8b617f1834bf9c844f745 "
+             "refs\\tags\\test_tag\n")
         ]
     ]
 

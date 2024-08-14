@@ -1,13 +1,16 @@
+from typing import cast
 import requests
 import zlib
 import struct
 import hashlib
 from pathlib import Path
 
+import urllib.request
+
+
 from MyGyat.utils_utils import create_gyat_object, deserialize_gyat_object
 
 
-# TODO finish this
 def gyat_clone_rep(cur_dir: Path, url: str):
 
     response = requests.get(f"{url}/info/refs?service=git-upload-pack")
@@ -38,18 +41,22 @@ def gyat_clone_rep(cur_dir: Path, url: str):
         + b"0009done\n0000"
     )
 
-    response_data = requests.get(
-        f"{url}/git-upload-pack", data=body,
-        headers={"Git-Protocol": "version=2"})
+    req = urllib.request.Request(
+                f"{url}/git-upload-pack",
+                data=body,
+                headers={"Git-Protocol": "version=2"},
+            )
+    pack_bytes = ""
+    with urllib.request.urlopen(req) as f:
+        pack_bytes = cast(bytes, f.read())
 
     pack_lines = []
-    data = str.encode(response_data.text)
-    while data:
-        line_len = int(data[:4], 16)
+    while pack_bytes:
+        line_len = int(pack_bytes[:4], 16)
         if line_len == 0:
             break
-        pack_lines.append(data[4:line_len])
-        data = data[line_len:]
+        pack_lines.append(pack_bytes[4:line_len])
+        pack_bytes = pack_bytes[line_len:]
 
     pack_files = b"".join(pack[1:] for pack in pack_lines[1:])
 
@@ -93,6 +100,8 @@ def gyat_clone_rep(cur_dir: Path, url: str):
     pack_file = pack_files[8:]
     n_objs, *_ = struct.unpack("!I", pack_file[:4])
     pack_file = pack_file[4:]
+    base_content = b""
+    count = 0
     for _ in range(n_objs):
         ty, _, pack_file = next_size_type(pack_file)
         match ty:
@@ -110,7 +119,11 @@ def gyat_clone_rep(cur_dir: Path, url: str):
                 content = dec.decompress(pack_file)
                 pack_file = dec.unused_data
                 target_content = b""
-                base_ty, base_content = deserialize_gyat_object(cur_dir, obj)
+                try:
+                    _, base_content = deserialize_gyat_object(cur_dir, obj)
+                except (FileNotFoundError, FileExistsError):
+                    count += 1
+
                 _, content = next_size(content)
                 _, content = next_size(content)
                 while content:
@@ -129,7 +142,8 @@ def gyat_clone_rep(cur_dir: Path, url: str):
                                 data_ptr += 1
 
                         content = content[data_ptr:]
-                        target_content += base_content[offset: offset + size]
+                        target_content += bytes(
+                            base_content[offset: offset + size])
                     else:
                         size = content[0]
                         append = content[1:size + 1]
@@ -141,3 +155,4 @@ def gyat_clone_rep(cur_dir: Path, url: str):
                 create_gyat_object(cur_dir, sha, header+content)
             case _:
                 raise RuntimeError("Not implemented")
+    print(f"Packages lost {count}")

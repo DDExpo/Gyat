@@ -8,32 +8,28 @@ from functools import wraps
 from MyGyat.gyat_index_entry_class import GyatIndexEntry
 from MyGyat.commands.cat_file import gyat_cat_file
 from MyGyat.const import INVALID_CHARS_TAG, GYAT_REFS, GYAT_OBJECTS
-from MyGyat.gyat_exceptions import IsNotSameTypeError, IsNotInGyatDir
+from MyGyat.gyat_exceptions import IsNotSameTypeError
 from MyGyat.utils_utils import (
     create_gyat_object, deserialize_gyat_object, parse_gyatignore)
 
 
-def catch_common_exceptions_with_args(func):
-    def catch_common_exceptions(func):
-        @wraps
-        def wrapper(*args, **kwargs):
-            try:
-                func()
-            except IsNotInGyatDir as e:
-                print(f"error: {e}")
-            except PermissionError as e:
-                print(f"error: {e}")
-            except TypeError as e:
-                print(f"error: {e}")
-            except FileNotFoundError as e:
-                print("sha key invalid or object does not exist\n"
-                      f"error: {e}")
-            except (UnicodeEncodeError, UnicodeDecodeError) as e:
-                print(f"error: {e}")
-            except BaseException as e:
-                print(f"Something went wrong {e}")
-        return wrapper
-    return catch_common_exceptions
+def catch_common_exceptions(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except PermissionError as e:
+            print(f"error: {e}")
+        except TypeError as e:
+            print(f"error: {e}")
+        except FileNotFoundError as e:
+            print("sha key invalid or object does not exist\n"
+                  f"error: {e}")
+        except (UnicodeEncodeError, UnicodeDecodeError) as e:
+            print(f"error: {e}")
+        except BaseException as e:
+            print(f"Something went wrong: {e}")
+    return wrapper
 
 
 def create_blob(base_dir: Path, path_file: Path,
@@ -259,9 +255,6 @@ def read_index(base_dir: Path) -> tuple[list[GyatIndexEntry], int]:
 
 
 def write_index(base_dir: Path, index: list[GyatIndexEntry], version: int):
-    '''DOESNT WORK'''
-    # DOESNT WORK
-    return
 
     with open(base_dir / ".git/index", "wb") as f:
 
@@ -287,14 +280,10 @@ def write_index(base_dir: Path, index: list[GyatIndexEntry], version: int):
             f.write(e.fsize.to_bytes(4, "big"))
             f.write(int(e.sha, 16).to_bytes(20, "big"))
 
-            flag_assume_valid = 0x1 << 15 if e.flag_assume_valid else 0
+            flag_assume_valid = (0x1 << 15) if e.flag_assume_valid else 0
 
             name_bytes = e.name.encode("utf8")
-            bytes_len = len(name_bytes)
-            if bytes_len >= 0xFFF:
-                name_length = 0xFFF
-            else:
-                name_length = bytes_len
+            name_length = min(len(name_bytes), 0xFFF)
 
             f.write(
                 (flag_assume_valid | e.flag_stage |
