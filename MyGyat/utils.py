@@ -77,7 +77,6 @@ def valid_tag_name(name: str):
     return True
 
 
-# WHATS THE TRASH HOLY SHIT, I CANT EVEN FATHOM HOW BAD THIS LOOKS
 def find_resolve_tag_ref(paren_repo: Path, ref_tag: str) -> str:
 
     dirs: list[Path] = [paren_repo / GYAT_REFS]
