@@ -126,7 +126,7 @@ def parse_gyatignore(gitignore_path: Path):
     return patterns
 
 
-def tree_from_index(base_dir: Path, index_entries: GyatIndexEntry) -> str:
+def tree_from_index(base_dir, index_entries: GyatIndexEntry) -> str:
 
     contents = defaultdict(list)
 
@@ -142,6 +142,10 @@ def tree_from_index(base_dir: Path, index_entries: GyatIndexEntry) -> str:
 
     sorted_paths = sorted(contents.keys(), key=len, reverse=True)
 
+    sha: str
+    data: bytes
+    header: bytes
+
     for path in sorted_paths:
 
         tree = []
@@ -151,18 +155,26 @@ def tree_from_index(base_dir: Path, index_entries: GyatIndexEntry) -> str:
 
                 leaf_mode = (f"{entry.mode_type:02o}"
                              f"{entry.mode_perms:04o}").encode("ascii")
-                leaf = (leaf_mode, os.path.basename(entry.name), entry.sha)
+                leaf = (
+                    leaf_mode +
+                    f" {os.path.basename(entry.name)}\0".encode() +
+                    bytes.fromhex(entry.sha)
+                )
             else:
-                leaf = (b"040000", entry[0], entry[1])
+                leaf = (
+                    f"40000 {entry[0]}\0".encode() +
+                    bytes.fromhex(entry[1])
+                )
 
             tree.append(leaf)
 
         data = b"".join(tree)
-        header = f"tree {len(data)}\x00".encode("utf-8")
+        header = f"tree {len(data)}\0".encode("utf-8")
         sha = sha1(header+data).hexdigest()
 
         parent = os.path.dirname(path)
         base = os.path.basename(path)
         contents[parent].append((base, sha))
+        create_gyat_object(base_dir, sha, header+data)
 
     return sha

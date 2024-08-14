@@ -39,7 +39,8 @@ def setup_data():
             "type commit\ntag tag_test\n"
             "tagger DDExpo <f8ck.th1sm3n@gmail.com> 1723236825 +0600\n"
             "tag_commit_test_one\n")
-           ))]
+           )),
+         ]
         ]
 
 

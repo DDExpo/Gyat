@@ -12,9 +12,11 @@ from .status import gyat_status
 from .rm import gyat_rm
 from .add import gyat_add
 from .gyat_clone import gyat_clone_rep
+from .gyat_commit_com import gyat_commit
 
 
 __all__ = [
+    "gyat_commit",
     "gyat_clone_rep",
     "gyat_add",
     "gyat_rm",

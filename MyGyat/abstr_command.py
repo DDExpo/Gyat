@@ -1,14 +1,12 @@
 import os
 from pathlib import Path
 
-from MyGyat.const import GYAT_REFS
-from MyGyat.utils import (
-    read_index, get_active_branch, catch_common_exceptions_with_args)
-from MyGyat.utils_utils import tree_from_index
+from MyGyat.utils import catch_common_exceptions_with_args
 from MyGyat.commands import (
     gyat_cat_file, gyat_commit_tree, gyat_hash_object, gyat_ls_tree,
     gyat_write_tree, gyat_init, gyat_show_ref, gyat_tag, gyat_ls_files,
-    gyat_check_ignore, gyat_status, gyat_rm, gyat_add, gyat_clone_rep)
+    gyat_check_ignore, gyat_status, gyat_rm, gyat_add, gyat_clone_rep,
+    gyat_commit)
 
 
 def cmd_init(cur_directory: Path) -> None:
@@ -83,19 +81,7 @@ def cmd_add(paths, base_dir: Path) -> None:
 
 
 def cmd_commit(message: str, base_dir: Path) -> None:
-    index_content, _ = read_index(base_dir)
-    tree = tree_from_index(base_dir, index_content)
-
-    commit = gyat_commit_tree(parent_repo=base_dir, sha_tree=tree,
-                              message=message)
-
-    active_branch = get_active_branch(base_dir)
-    if active_branch:
-        with open(base_dir / GYAT_REFS / "heads" / active_branch, "w") as fd:
-            fd.write(commit + "\n")
-    else:
-        with open(base_dir / ".git/HEAD", "w") as fd:
-            fd.write("\n")
+    gyat_commit(base_dir, message)
 
 
 def cmd_clone(url: str, dir: str) -> None:
