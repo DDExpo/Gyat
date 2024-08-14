@@ -2,7 +2,7 @@
 
 ## Goal
 
- Main reason of this project to get the deeper understanding of the git and its internals.
+ Main reason why this project exist to get the deeper understanding of the git and its internals.
 
 
 ## Overview
