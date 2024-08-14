@@ -2,7 +2,7 @@ import time
 from hashlib import sha1
 from pathlib import Path
 
-from MyGyat.utils import gitconfig_read, is_gyat_object
+from MyGyat.utils import gitconfig_read
 from MyGyat.utils_utils import create_gyat_object
 
 
@@ -24,7 +24,6 @@ def gyat_commit_tree(
         commit = commit + f"\n\n{message}"
 
     if parent_sha:
-        is_gyat_object(parent_sha, parent_sha, "tree")
         commit = f"parent {parent_sha}\n" + commit
 
     commit_bytes = commit.encode("utf-8")

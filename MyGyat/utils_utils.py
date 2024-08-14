@@ -171,10 +171,10 @@ def tree_from_index(base_dir, index_entries: GyatIndexEntry) -> str:
         data = b"".join(tree)
         header = f"tree {len(data)}\0".encode("utf-8")
         sha = sha1(header+data).hexdigest()
+        create_gyat_object(base_dir, sha, header+data)
 
         parent = os.path.dirname(path)
         base = os.path.basename(path)
         contents[parent].append((base, sha))
-        create_gyat_object(base_dir, sha, header+data)
 
     return sha
